@@ -99,6 +99,8 @@
   .sclive i{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
   .scempty{color:var(--mut);padding:18px 2px;font-size:13px}
   .scnote{font-size:11px;color:var(--mut2)}
+  @keyframes redpulse{0%{box-shadow:0 0 0 0 rgba(255,59,48,.5)}70%{box-shadow:0 0 0 7px rgba(255,59,48,0)}100%{box-shadow:0 0 0 0 rgba(255,59,48,0)}}
+  .tab.haslive::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff3b30;margin-left:7px;vertical-align:middle;animation:redpulse 1.6s infinite}
 
   .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px;color:var(--mut);font-size:11.5px;font-weight:600}
   .legend .k{display:flex;align-items:center;gap:6px}
@@ -507,7 +509,13 @@ let lastTickerHTML='';
 function buildTicker(){
   const paidCount=P.filter(p=>isPaid(p)).length;
   const owe=P.length-paidCount;
-  const items=[
+  const liveItems=[];
+  (scoreData||[]).forEach(e=>{
+    const s=e.home.score||'0', a=e.away.score||'0';
+    if(e.state==='in') liveItems.push('<span style="color:#ff6b6b;font-weight:900">&#128308; LIVE</span> &mdash; '+e.home.name+' <b>'+s+'&ndash;'+a+'</b> '+e.away.name);
+    else if(e.state==='post') liveItems.push('<b>FT</b> &mdash; '+e.home.name+' <b>'+s+'&ndash;'+a+'</b> '+e.away.name);
+  });
+  const trend=[
     "All "+P.length+" brackets are in &mdash; for now the board ranks <b>boldness</b>, not standings. Nobody's winning yet: these are ceilings.",
     "The group stage is the whole contest &mdash; <b>62 pts</b> of spread there vs just <b>36</b> in the knockouts.",
     "<b>Hank</b> is the boldest bracket in the pool: <b>+72</b> above chalk in the group stage.",
@@ -523,6 +531,7 @@ function buildTicker(){
     "<b>Jack</b> is the only player whose knockout ceiling (119) tops his group stage (116).",
     P.length+" brackets in &middot; "+paidCount+" paid &middot; "+owe+" owe the pot"
   ];
+  const items=liveItems.concat(trend);
   const html=items.map(x=>'<span>&#9679; '+x+'</span>').join('');
   const full=html+html;
   if(full===lastTickerHTML) return;          // skip if unchanged (don't restart the scroll)
@@ -675,27 +684,34 @@ function renderPayments(){
   }));
 }
 
-let scoresTimer=null;
+let scoreData=[];
 function fmtKick(iso){ try{return new Date(iso).toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'});}catch(e){return 'Scheduled';} }
 function scLogo(t){ return t.logo?'<img class="sclogo" src="'+t.logo+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'<span class="sclogo"></span>'; }
-function renderScores(){
+function anyLive(){ return scoreData.some(e=>e.state==='in'); }
+function updateScoreTab(){ const tab=document.querySelector('.tab[data-tab="sco"]'); if(tab) tab.classList.toggle('haslive',anyLive()); }
+function renderScoreboard(){
   const wrap=document.getElementById('scoreboard'); if(!wrap) return;
-  fetch('/api/scores',{cache:'no-store'}).then(r=>r.json()).then(d=>{
-    const evs=d.events||[];
-    if(!evs.length){ wrap.innerHTML='<div class="scempty">No matches scheduled right now &mdash; check back at kickoff.</div>'; return; }
-    wrap.innerHTML=evs.map(e=>{
-      const live=e.state==='in', done=e.state==='post', show=live||done;
-      const status= live ? '<span class="sclive"><i></i>'+(e.detail||'LIVE')+'</span>'
-                  : done ? '<span class="scfin">'+(e.detail||'Full Time')+'</span>'
-                  : '<span class="scsched">'+fmtKick(e.date)+'</span>';
-      const num=t=> show ? '<span class="scnum">'+(t.score===''?'0':t.score)+'</span>' : '';
-      const row=t=>'<div class="scteam">'+scLogo(t)+'<span class="sctn">'+t.name+'</span>'+num(t)+'</div>';
-      return '<div class="scmatch'+(live?' on':'')+'">'
-        +(e.group?'<div class="scgrp">'+e.group+'</div>':'')
-        +row(e.home)+row(e.away)
-        +'<div class="scstatus">'+status+'</div></div>';
-    }).join('');
-  }).catch(()=>{ wrap.innerHTML='<div class="scempty">Couldn\'t load scores right now.</div>'; });
+  if(!scoreData.length){ wrap.innerHTML='<div class="scempty">No matches scheduled right now &mdash; check back at kickoff.</div>'; return; }
+  wrap.innerHTML=scoreData.map(e=>{
+    const live=e.state==='in', done=e.state==='post', show=live||done;
+    const status= live ? '<span class="sclive"><i></i>'+(e.detail||'LIVE')+'</span>'
+                : done ? '<span class="scfin">'+(e.detail||'Full Time')+'</span>'
+                : '<span class="scsched">'+fmtKick(e.date)+'</span>';
+    const num=t=> show ? '<span class="scnum">'+(t.score===''?'0':t.score)+'</span>' : '';
+    const row=t=>'<div class="scteam">'+scLogo(t)+'<span class="sctn">'+t.name+'</span>'+num(t)+'</div>';
+    return '<div class="scmatch'+(live?' on':'')+'">'
+      +(e.group?'<div class="scgrp">'+e.group+'</div>':'')
+      +row(e.home)+row(e.away)
+      +'<div class="scstatus">'+status+'</div></div>';
+  }).join('');
+}
+function refreshScores(){
+  return fetch('/api/scores',{cache:'no-store'}).then(r=>r.json()).then(d=>{
+    scoreData=d.events||[];
+    updateScoreTab();
+    if(document.getElementById('sco').classList.contains('active')) renderScoreboard();
+    buildTicker();
+  }).catch(()=>{});
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -704,8 +720,7 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.getElementById(t.dataset.tab).classList.add('active');
   if(t.dataset.tab==='res') renderResultsTab();
   if(t.dataset.tab==='rs') renderResults();
-  clearInterval(scoresTimer);
-  if(t.dataset.tab==='sco'){ renderScores(); scoresTimer=setInterval(renderScores,25000); }
+  if(t.dataset.tab==='sco'){ renderScoreboard(); refreshScores(); }
 }));
 document.querySelectorAll('.pill').forEach(p=>p.addEventListener('click',()=>{
   document.querySelectorAll('.pill').forEach(x=>x.classList.remove('on'));
@@ -786,6 +801,7 @@ function renderAll(){
 }
 function boot(){
   buildTicker();
+  refreshScores(); setInterval(refreshScores,30000);
   if(API){
     try{const sp=sessionStorage.getItem('gagc_pass'); if(sp){PASS=sp;EDITOR=true;}}catch(e){}
     const rn=document.getElementById('resnote');
