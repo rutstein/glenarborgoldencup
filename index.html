@@ -478,16 +478,22 @@ function anyResults(){
 function flag(k,lg){const sz=lg?' lg':'';return `<span class="flagwrap"><img class="flag${sz}" loading="lazy" src="https://flagcdn.com/w80/${ISO(k)}.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="flagfb fbp${POT(k)}${sz}">${k}</span></span>`;}
 function potbadge(k){return '<span class="pb pb'+POT(k)+'">P'+POT(k)+'</span>';}
 
+let lastTickerHTML='';
 function buildTicker(){
+  const paidCount=P.filter(p=>isPaid(p)).length;
+  const owe=P.length-paidCount;
   const items=[
     "Anti-chalk scoring: call the upset, cash the upset",
     "Pot 4 champion pick = <b>32 pts</b> &middot; still untouched",
-    "12 brackets in &middot; 2 paid &middot; 10 owe the pot",
+    P.length+" brackets in &middot; "+paidCount+" paid &middot; "+owe+" owe the pot",
     "Group stage is where the spread lives",
     "Enter real results in the Results tab &mdash; everything re-scores live"
   ];
   const html=items.map(x=>'<span>&#9679; '+x+'</span>').join('');
-  document.getElementById('ticker').innerHTML=html+html;
+  const full=html+html;
+  if(full===lastTickerHTML) return;          // skip if unchanged (don't restart the scroll)
+  lastTickerHTML=full;
+  document.getElementById('ticker').innerHTML=full;
 }
 
 let sortMode='auto';
@@ -634,7 +640,7 @@ function renderPayments(){
     const n=b.dataset.pay, p=P.find(x=>x.n===n);
     if(!results.paid) results.paid={};
     results.paid[n]=!isPaid(p);
-    save(); renderPayments(); renderLB();
+    save(); renderPayments(); renderLB(); buildTicker();
   }));
 }
 
@@ -721,7 +727,7 @@ function renderResults(){
     +'<div class="kowrap"><div class="section-h"><h2 style="font-size:16px">Knockout</h2></div><div class="korounds">'+kocols+'</div></div>';
 }
 function renderAll(){
-  renderLB(); renderPsel(); renderBracket(); renderResults(); renderResultsTab();
+  renderLB(); renderPsel(); renderBracket(); renderResults(); renderResultsTab(); buildTicker();
 }
 function boot(){
   buildTicker();
@@ -733,7 +739,7 @@ function boot(){
     setInterval(()=>{
       const onRes=document.getElementById('res').classList.contains('active');
       if(EDITOR && onRes) return; // don't disrupt the scorekeeper mid-entry
-      loadRemote(()=>{ renderLB(); renderPsel(); renderBracket(); renderResults(); });
+      loadRemote(()=>{ renderLB(); renderPsel(); renderBracket(); renderResults(); buildTicker(); });
     },15000);
   } else {
     try{const sp=sessionStorage.getItem('gagc_pass'); if(sp&&sp===PASSCODE_LOCAL){EDITOR=true;PASS=sp;}}catch(e){}
