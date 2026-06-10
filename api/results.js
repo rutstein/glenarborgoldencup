@@ -1,28 +1,15 @@
-// Backend for Glen Arbor Golden Cup — stores shared results/payments.
+// Backend for Glen Arbor Golden Cup — stores shared results/payments in Redis.
 // Endpoints: GET /api/results (read), POST /api/results (write, passcode-guarded).
-// Storage: Vercel KV (Upstash Redis) via REST — no npm dependencies needed.
+
+import Redis from 'ioredis';
 
 const KEY = 'gagc_results_v1';
-const KV_URL = process.env.KV_REST_API_URL;
-const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 const EMPTY = { groups: {}, ko: { r32: [], r16: [], qf: [], sf: [], f: [] }, paid: {}, tb: {} };
 
-async function kvGet() {
-  const r = await fetch(`${KV_URL}/get/${KEY}`, {
-    headers: { Authorization: `Bearer ${KV_TOKEN}` },
-    cache: 'no-store',
-  });
-  const j = await r.json();
-  return j.result ? JSON.parse(j.result) : null;
-}
-
-async function kvSet(value) {
-  const r = await fetch(`${KV_URL}/set/${KEY}`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${KV_TOKEN}`, 'Content-Type': 'text/plain' },
-    body: JSON.stringify(value),
-  });
-  return r.ok;
+let redis = null;
+function client() {
+  if (!redis) redis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 5 });
+  return redis;
 }
 
 export default async function handler(req, res) {
@@ -31,14 +18,14 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  if (!KV_URL || !KV_TOKEN) {
-    return res.status(500).json({ error: 'Storage not configured' });
-  }
+  if (!process.env.REDIS_URL) return res.status(500).json({ error: 'Storage not configured' });
 
   try {
+    const r = client();
+
     if (req.method === 'GET') {
-      const data = await kvGet();
-      return res.status(200).json(data || EMPTY);
+      const v = await r.get(KEY);
+      return res.status(200).json(v ? JSON.parse(v) : EMPTY);
     }
 
     if (req.method === 'POST') {
@@ -49,8 +36,8 @@ export default async function handler(req, res) {
       if (!body || body.passcode !== process.env.PASSCODE) {
         return res.status(401).json({ error: 'bad passcode' });
       }
-      const ok = await kvSet(body.results || EMPTY);
-      return ok ? res.status(200).json({ ok: true }) : res.status(500).json({ error: 'save failed' });
+      await r.set(KEY, JSON.stringify(body.results || EMPTY));
+      return res.status(200).json({ ok: true });
     }
 
     return res.status(405).end();
