@@ -483,11 +483,20 @@ function buildTicker(){
   const paidCount=P.filter(p=>isPaid(p)).length;
   const owe=P.length-paidCount;
   const items=[
-    "Anti-chalk scoring: call the upset, cash the upset",
-    "Pot 4 champion pick = <b>32 pts</b> &middot; still untouched",
-    P.length+" brackets in &middot; "+paidCount+" paid &middot; "+owe+" owe the pot",
-    "Group stage is where the spread lives",
-    "Enter real results in the Results tab &mdash; everything re-scores live"
+    "All "+P.length+" brackets are in &mdash; for now the board ranks <b>boldness</b>, not standings. Nobody's winning yet: these are ceilings.",
+    "The group stage is the whole contest &mdash; <b>62 pts</b> of spread there vs just <b>36</b> in the knockouts.",
+    "<b>Hank</b> is the boldest bracket in the pool: <b>+72</b> above chalk in the group stage.",
+    "<b>Rohit</b> is pure chalk &mdash; lowest ceiling, lowest variance, lands near <b>206</b> no matter what happens.",
+    "All "+P.length+" champions are Pot 1. The <b>32-pt</b> Pot 4 title bet sits completely untouched.",
+    "<b>France</b> reaches the final in <b>7 of 12</b> brackets &mdash; but wins it only once.",
+    "Three brackets picked the identical final: <b>Spain over Argentina</b>.",
+    "<b>Argentina</b> &mdash; finalist 3 times, champion zero. Always the bridesmaid.",
+    "Champions picked &mdash; Brazil 4 &middot; Spain 3 &middot; Portugal 2 &middot; England 2 &middot; France 1.",
+    "<b>Aidan</b> (Senegal) and <b>Will Scott</b> (Ghana) each rode a Pot 3 team to the QF for <b>27 pts</b> &mdash; the biggest single-team hauls in the pool.",
+    "Group A is the battleground: <b>Korea 6 / Mexico 4 / Czech 2</b> to win the group.",
+    "The <b>USA fade</b> is real &mdash; Turkey over the USA in Group D, and Hank has the hosts finishing dead last.",
+    "<b>Jack</b> is the only player whose knockout ceiling (119) tops his group stage (116).",
+    P.length+" brackets in &middot; "+paidCount+" paid &middot; "+owe+" owe the pot"
   ];
   const html=items.map(x=>'<span>&#9679; '+x+'</span>').join('');
   const full=html+html;
