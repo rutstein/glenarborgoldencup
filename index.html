@@ -58,7 +58,7 @@
     font-size:12px;font-weight:700;cursor:pointer}
   .pill.on{background:var(--gold);color:#1a1400;border-color:var(--gold)}
   .lb{display:flex;flex-direction:column;gap:8px}
-  .row{display:grid;grid-template-columns:42px 1fr 132px 150px 92px;gap:12px;align-items:center;
+  .row{display:grid;grid-template-columns:42px 1fr 132px 150px;gap:12px;align-items:center;
     background:linear-gradient(90deg,var(--card),var(--card2));border:1px solid var(--line);
     border-radius:14px;padding:12px 14px;position:relative;overflow:hidden}
   .row.r1{border-color:var(--gold);box-shadow:0 0 0 1px rgba(245,197,24,.25),0 10px 30px rgba(245,197,24,.10)}
@@ -321,7 +321,7 @@
       <b>Knockout</b> &mdash; every team you keep alive in a round banks <span class="tag">Round Base &times; Pot</span>.
       The deeper a low-pot team runs, the more it prints. Points bank per round, so a Cinderella survivor pays every step.
       <br><br>
-      <b>Tiebreaker</b> &mdash; combined goals in the Final, then total tournament goals (enter on the Leaderboard).
+      <b>Tiebreaker</b> &mdash; if two brackets tie on points, it goes to whoever <b>picked the champion</b>; still tied, it's decided by the <b>most perfectly-called groups</b> (all four spots correct).
     </div>
     <h3 style="font-size:13px;font-weight:900;margin:0 2px 10px;color:var(--mut);letter-spacing:.4px;text-transform:uppercase">Group Stage &mdash; points per team</h3>
     <table class="sc">
@@ -468,7 +468,12 @@ function score(p){
       if(adv.includes(t)) earned+=v; else if(locked) lost+=v;
     });
   });
-  return {earned,lost,ceil,poss:ceil-lost};
+  // Tiebreakers: (1) picked the actual champion, (2) number of perfectly-called groups (all 4 spots correct)
+  const actualChamp=(results.ko.f||[])[0];
+  const champHit = actualChamp ? (p.kop.f[0]===actualChamp ? 1 : 0) : 0;
+  let perfectGroups=0;
+  GORDER.forEach(G=>{ const a=results.groups[G]; if(a && p.gp[G].every((pick,i)=>a[i]===pick.t)) perfectGroups++; });
+  return {earned,lost,ceil,poss:ceil-lost,champHit,perfectGroups};
 }
 function anyResults(){
   if(Object.keys(results.groups).length) return true;
@@ -513,11 +518,13 @@ function renderLB(){
     : "No results entered yet \u2014 showing each bracket's ceiling (max possible).";
   const maxCeil=Math.max.apply(null,P.map(p=>score(p).ceil));
   let arr=P.map(p=>({p,s:score(p)}));
+  // tiebreaker: picked the champion, then most perfectly-called groups
+  const tie=(a,b)=> (b.s.champHit-a.s.champHit) || (b.s.perfectGroups-a.s.perfectGroups);
   const cmp={
-    ceiling:(a,b)=>b.s.ceil-a.s.ceil,
-    earned:(a,b)=>b.s.earned-a.s.earned||b.s.poss-a.s.poss,
-    poss:(a,b)=>b.s.poss-a.s.poss||b.s.earned-a.s.earned,
-    auto:(a,b)=> live ? (b.s.earned-a.s.earned||b.s.poss-a.s.poss||b.s.ceil-a.s.ceil) : (b.s.ceil-a.s.ceil)
+    ceiling:(a,b)=>b.s.ceil-a.s.ceil||tie(a,b),
+    earned:(a,b)=>b.s.earned-a.s.earned||tie(a,b)||b.s.poss-a.s.poss,
+    poss:(a,b)=>b.s.poss-a.s.poss||tie(a,b)||b.s.earned-a.s.earned,
+    auto:(a,b)=> live ? (b.s.earned-a.s.earned||tie(a,b)||b.s.poss-a.s.poss||b.s.ceil-a.s.ceil) : (b.s.ceil-a.s.ceil||tie(a,b))
   }[sortMode];
   arr.sort((a,b)=>cmp(a,b)|| a.p.n.localeCompare(b.p.n));
   document.getElementById('lbrows').innerHTML = arr.map((o,idx)=>{
@@ -525,7 +532,6 @@ function renderLB(){
     const ePct=maxCeil?s.earned/maxCeil*100:0;
     const pPct=maxCeil?(s.poss-s.earned)/maxCeil*100:0;
     const lPct=maxCeil?s.lost/maxCeil*100:0;
-    const tb=results.tb[p.n]||'';
     return '<div class="row '+(rk<=3?'r'+rk:'')+'">'
       +'<div class="rk">'+rk+'</div>'
       +'<div class="who">'
@@ -535,12 +541,8 @@ function renderLB(){
       +'</div>'
       +'<div class="scol earn"><div class="big">'+s.earned+'</div><div class="lbl">Earned</div></div>'
       +'<div class="scol poss"><div class="big">'+s.poss+'</div><div class="lbl">Still possible &middot; '+s.ceil+' max</div></div>'
-      +'<div class="tb"><input data-tb="'+p.n+'" value="'+tb+'" placeholder="\u2013" inputmode="numeric"><div class="lbl">TB goals</div></div>'
     +'</div>';
   }).join('');
-  document.querySelectorAll('input[data-tb]').forEach(inp=>{
-    inp.addEventListener('change',e=>{results.tb[e.target.dataset.tb]=e.target.value;save();});
-  });
 }
 
 let selPlayer=0;
