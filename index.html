@@ -685,7 +685,7 @@ function renderPayments(){
 }
 
 let scoreData=[];
-function fmtKick(iso){ try{return new Date(iso).toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'});}catch(e){return 'Scheduled';} }
+function fmtKick(iso){ try{return new Date(iso).toLocaleString('en-US',{timeZone:'America/Chicago',weekday:'short',hour:'numeric',minute:'2-digit'})+' CT';}catch(e){return 'Scheduled';} }
 function scLogo(t){ return t.logo?'<img class="sclogo" src="'+t.logo+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'<span class="sclogo"></span>'; }
 function anyLive(){ return scoreData.some(e=>e.state==='in'); }
 function updateScoreTab(){ const tab=document.querySelector('.tab[data-tab="sco"]'); if(tab) tab.classList.toggle('haslive',anyLive()); }
