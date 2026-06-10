@@ -85,6 +85,20 @@
   .tb input{width:54px;background:#0a1120;border:1px solid var(--line);color:var(--txt);border-radius:8px;
     padding:5px;text-align:center;font-weight:800;font-size:13px}
   .tb .lbl{font-size:9px;color:var(--mut2);font-weight:800;letter-spacing:.5px;margin-top:3px}
+  .scoreboard{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+  .scmatch{background:var(--card,#0b1322);border:1px solid var(--line);border-radius:14px;padding:13px 15px}
+  .scmatch.on{border-color:var(--green);box-shadow:0 0 0 1px rgba(40,199,111,.25)}
+  .scgrp{font-size:9.5px;font-weight:900;letter-spacing:.5px;color:var(--mut2);text-transform:uppercase;margin-bottom:9px}
+  .scteam{display:flex;align-items:center;gap:9px;padding:4px 0}
+  .sclogo{width:22px;height:22px;object-fit:contain;flex:none}
+  .sctn{flex:1;min-width:0;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .scnum{font-weight:900;font-size:18px;font-variant-numeric:tabular-nums}
+  .scstatus{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:11.5px;font-weight:700}
+  .scsched{color:var(--mut)} .scfin{color:var(--mut)}
+  .sclive{color:var(--green);display:inline-flex;align-items:center;gap:6px}
+  .sclive i{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
+  .scempty{color:var(--mut);padding:18px 2px;font-size:13px}
+  .scnote{font-size:11px;color:var(--mut2)}
 
   .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px;color:var(--mut);font-size:11.5px;font-weight:600}
   .legend .k{display:flex;align-items:center;gap:6px}
@@ -231,6 +245,7 @@
 
 <nav class="tabs"><div class="tabs-inner">
   <div class="tab active" data-tab="lb">&#127942; Leaderboard</div>
+  <div class="tab" data-tab="sco">&#128250; Scores</div>
   <div class="tab" data-tab="br">&#128203; Brackets</div>
   <div class="tab" data-tab="rs">&#127937; Results</div>
   <div class="tab" data-tab="res">&#9917; Enter Results</div>
@@ -307,6 +322,11 @@
       </div>
       <div class="saved-note" id="savedNote" style="display:none">&#10003; Saved</div>
     </div>
+  </section>
+
+  <section class="panel" id="sco">
+    <div class="section-h"><h2>Scores</h2><span class="note scnote" id="scupd">Live from ESPN &middot; refreshes automatically</span></div>
+    <div class="scoreboard" id="scoreboard"><div class="scempty">Loading scores&hellip;</div></div>
   </section>
 
   <section class="panel" id="sc">
@@ -655,6 +675,28 @@ function renderPayments(){
   }));
 }
 
+let scoresTimer=null;
+function fmtKick(iso){ try{return new Date(iso).toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'});}catch(e){return 'Scheduled';} }
+function scLogo(t){ return t.logo?'<img class="sclogo" src="'+t.logo+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'<span class="sclogo"></span>'; }
+function renderScores(){
+  const wrap=document.getElementById('scoreboard'); if(!wrap) return;
+  fetch('/api/scores',{cache:'no-store'}).then(r=>r.json()).then(d=>{
+    const evs=d.events||[];
+    if(!evs.length){ wrap.innerHTML='<div class="scempty">No matches scheduled right now &mdash; check back at kickoff.</div>'; return; }
+    wrap.innerHTML=evs.map(e=>{
+      const live=e.state==='in', done=e.state==='post', show=live||done;
+      const status= live ? '<span class="sclive"><i></i>'+(e.detail||'LIVE')+'</span>'
+                  : done ? '<span class="scfin">'+(e.detail||'Full Time')+'</span>'
+                  : '<span class="scsched">'+fmtKick(e.date)+'</span>';
+      const num=t=> show ? '<span class="scnum">'+(t.score===''?'0':t.score)+'</span>' : '';
+      const row=t=>'<div class="scteam">'+scLogo(t)+'<span class="sctn">'+t.name+'</span>'+num(t)+'</div>';
+      return '<div class="scmatch'+(live?' on':'')+'">'
+        +(e.group?'<div class="scgrp">'+e.group+'</div>':'')
+        +row(e.home)+row(e.away)
+        +'<div class="scstatus">'+status+'</div></div>';
+    }).join('');
+  }).catch(()=>{ wrap.innerHTML='<div class="scempty">Couldn\'t load scores right now.</div>'; });
+}
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
@@ -662,6 +704,8 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.getElementById(t.dataset.tab).classList.add('active');
   if(t.dataset.tab==='res') renderResultsTab();
   if(t.dataset.tab==='rs') renderResults();
+  clearInterval(scoresTimer);
+  if(t.dataset.tab==='sco'){ renderScores(); scoresTimer=setInterval(renderScores,25000); }
 }));
 document.querySelectorAll('.pill').forEach(p=>p.addEventListener('click',()=>{
   document.querySelectorAll('.pill').forEach(x=>x.classList.remove('on'));
