@@ -162,6 +162,26 @@
   .bo-thteam{font-family:'Alfa Slab One',serif;font-size:13px}
   .bo-saved{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-size:12px;font-weight:700;opacity:0;transition:.2s}
   .bo-saved.show{opacity:1}
+  .bo-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;font-size:12px;color:var(--mut);font-weight:600}
+  .bo-legend b{display:inline-block;width:18px;text-align:center;border-radius:4px;margin-right:5px}
+  .bo-vs{background:var(--card2);color:var(--mut);border:1px solid var(--line)}
+  .bo-plus{background:rgba(40,199,111,.18);color:var(--green);border:1px solid rgba(40,199,111,.4)}
+  .bo-bracket{margin-top:12px;padding-top:12px;border-top:1px dotted var(--line);display:flex;align-items:stretch;gap:10px}
+  .bo-semis{flex:1;display:flex;flex-direction:column;gap:7px;justify-content:center}
+  .bo-match{display:flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--line);border-radius:7px;padding:5px 8px}
+  .bo-chip{flex:1;text-align:center;color:#fff;font-size:11px;font-weight:800;letter-spacing:.04em;padding:4px 0;border-radius:5px}
+  .bo-sep{flex:none;min-width:16px;text-align:center;font-size:11px;font-weight:900;text-transform:uppercase}
+  .bo-sep.vs{color:var(--mut2)} .bo-sep.plus{color:var(--green)}
+  .bo-arrow{display:flex;align-items:center;color:var(--mut2);font-size:16px}
+  .bo-out{flex:none;width:94px;display:flex;flex-direction:column;gap:6px;justify-content:center}
+  .bo-outbox{text-align:center;border:1.5px dashed var(--gold);border-radius:6px;padding:5px 4px}
+  .bo-outbox.dot{border-style:dotted;border-color:var(--mut2)}
+  .bo-outt{font-size:8px;font-weight:800;letter-spacing:.1em;color:var(--gold);text-transform:uppercase}
+  .bo-outbox.dot .bo-outt{color:var(--mut)}
+  .bo-outb{font-size:11px;font-weight:700;color:var(--txt);margin-top:2px}
+  .bo-srow{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .bo-srn{font-weight:800;font-size:14px}
+  .bo-srd{flex-basis:100%;color:var(--mut);font-size:12.5px;margin-top:2px}
 
   .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px;color:var(--mut);font-size:11.5px;font-weight:600}
   .legend .k{display:flex;align-items:center;gap:6px}
@@ -400,16 +420,16 @@
       <div class="bo-sub">Est. July 4th 2021 &middot; Glen Arbor &middot; Little Glen Lake</div>
     </div>
     <div class="bo-nav" id="boNav">
-      <div class="bo-tab on" data-bo="stand">&#127942; Standings</div>
-      <div class="bo-tab" data-bo="teams">&#128101; Teams</div>
+      <div class="bo-tab on" data-bo="stand">&#127942; Standings &amp; Teams</div>
       <div class="bo-tab" data-bo="events">&#128197; Events &amp; Rules</div>
       <div class="bo-tab" data-bo="scoring">&#129518; How Scoring Works</div>
       <div class="bo-tab" data-bo="enter">&#9999;&#65039; Enter Scores</div>
     </div>
     <div class="bo-panel on" id="bo-stand"><div class="bo-barrow"><div class="bo-h" style="margin:0">Standings</div><span class="bo-live"><i></i>LIVE &middot; shared</span></div><div id="boStandings"></div></div>
-    <div class="bo-panel" id="bo-teams"><div class="bo-h">The Teams</div><div class="bo-teamgrid" id="boTeamgrid"></div></div>
-    <div class="bo-panel" id="bo-events"><div class="bo-h">Order of Events</div><div id="boEventlist"></div></div>
-    <div class="bo-panel" id="bo-scoring"><div class="bo-h">How Scoring Works</div><div class="bo-explain"><b>"CWS"</b> is a College World Series&ndash;style double-elim &mdash; win three (your semi, the winners' game, then the championship) to be crowned. Most events pay out <b>3 &middot; 2 &middot; 1 &middot; 0</b> across the placings.<div class="bo-twist"><b>Our twist:</b> reach the championship (two wins) and you're <b>guaranteed 2nd</b> &mdash; lose the final and you still take 2nd. No second chances in the championship.</div><div class="bo-paykey"><span>1st = 3</span><span>2nd = 2</span><span>3rd = 1</span><span>4th = 0</span></div></div></div>
+    <div class="bo-panel" id="bo-events"><div class="bo-h">Order of Events</div>
+      <div class="bo-legend"><span><b class="bo-vs">v</b> = teams face off</span><span><b class="bo-plus">+</b> = teams combine</span></div>
+      <div id="boEventlist"></div></div>
+    <div class="bo-panel" id="bo-scoring"><div class="bo-h">How Scoring Works</div><div class="bo-explain"><b>"CWS"</b> is a College World Series&ndash;style double-elim &mdash; win three (your semi, the winners' game, then the championship) to be crowned. Most events pay out <b>3 &middot; 2 &middot; 1 &middot; 0</b> across the placings.<div class="bo-twist"><b>Our twist:</b> reach the championship (two wins) and you're <b>guaranteed 2nd</b> &mdash; lose the final and you still take 2nd. No second chances in the championship.</div><div class="bo-paykey"><span>1st = 3</span><span>2nd = 2</span><span>3rd = 1</span><span>4th = 0</span></div></div><div id="boScoreRules"></div></div>
     <div class="bo-panel" id="bo-enter">
       <div class="bo-barrow"><div class="bo-h" style="margin:0">Enter Scores</div><span class="bo-saved" id="boSaved">&#10003; Saved</span></div>
       <div id="boLock" class="bo-lock"><h3>&#128274; Scorekeeper only</h3><p>Enter the passcode to key in results. Standings update live for everyone.</p><div><input id="boPass" type="password" placeholder="Passcode" autocomplete="off"> <button class="bo-btn" id="boUnlock">Unlock</button></div><div class="bo-lockerr" id="boLockErr">Wrong passcode.</div></div>
@@ -917,18 +937,18 @@ boot();
   ];
   const days=[
     {label:"Night 1",color:"#2A6F9E",events:[
-      {no:"01",name:"Trivia",pill:"Warm-Up",format:"Two teams combine — Nick & Aidan host, so their teams split. Pairs can decide or pick."},
+      {no:"01",name:"Trivia",pill:"Warm-Up",score:"Warm-up — no points on the board.",format:"Two teams combine — Nick & Aidan host, so their teams split. Pairs can decide or pick.",bracket:[[1,3],[2,4]],combined:true,single:true,rightTop:"Trivia",rightBot:"Night 1"},
     ]},
     {label:"Day 2",color:"#B82A2A",events:[
-      {no:"02",name:"Basketball",pill:"3 · 2 · 1 · 0",format:"To 11, by 1s & 2s. Bracket: T4 v T2 · T1 v T3, then CWS double-elim to the title."},
-      {no:"03",name:"Stack Cup Elimination",pill:"1 / game",format:"5 games · 12 cups · elimination. A point for every game your teammate is last man standing. Get stacked in every game and you're out."},
-      {no:"04",name:"Chug Race",pill:"3 · 2 · 1 · 0",format:"Winners jockey for 1st (3, loser 2); losers jockey for 3rd (1, loser 0)."},
-      {no:"05",name:"Beer Dye",pill:"3 · 2 · 1 · 0",format:"Pick 2 of 3 electives, play to 11. Semis, then a final and a 3rd-place game."},
-      {no:"06",name:"Water-Bunny",pill:"3 · 2 · 1 · 0",format:"One game, last man standing. First team out 0, then 1 and 2 — the lone survivor takes 3."},
-      {no:"07",name:"Baseball",pill:"2 / 3 / 4",format:"9 innings, two combined sides. Each winning side scores by run differential — 1–3: 2 pts · 4–7: 3 pts · 8+: 4 pts."},
-      {no:"08",name:"Cup Pong",pill:"3 · 2 · 1 · 0",format:"Pick 2 of your 3 players (Part 2, no repeats). T1 v T3 · T4 v T2. CWS double-elim."},
-      {no:"09",name:"Caps",pill:"3 · 2 · 1 · 0",format:"Pick 2 of your 3 players (Part 3, no repeats). Semis into finals, scored by place."},
-      {no:"10",name:"Flip Cup Down & Back",pill:"3 · 2 · 1",format:"Fill to the line, cheers, drink, flip — go down & back. CWS double-elim."},
+      {no:"02",name:"Basketball",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by final placing (CWS double-elim).",format:"To 11, by 1s & 2s. Bracket: T4 v T2 · T1 v T3, then CWS double-elim to the title.",bracket:[[4,2],[1,3]]},
+      {no:"03",name:"Stack Cup Elimination",pill:"1 / game",score:"1 point each game your teammate is the last man standing.",format:"5 games · 12 cups · elimination. A point for every game your teammate is last man standing. Get stacked in every game and you're out."},
+      {no:"04",name:"Chug Race",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Winners jockey for 1st (3, loser 2); losers jockey for 3rd (1, loser 0).",bracket:[[1,3],[2,4]],places:true},
+      {no:"05",name:"Beer Dye",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Pick 2 of 3 electives, play to 11. Semis, then a final and a 3rd-place game.",bracket:[[1,2],[3,4]],places:true},
+      {no:"06",name:"Water-Bunny",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 — first team out scores 0, the lone survivor takes 3.",format:"One game, last man standing. First team out 0, then 1 and 2 — the lone survivor takes 3."},
+      {no:"07",name:"Baseball",pill:"2 / 3 / 4",score:"Winning side scores by run differential — 1–3 runs: 2 · 4–7: 3 · 8+: 4.",format:"9 innings, two combined sides. Each winning side scores by run differential — 1–3: 2 pts · 4–7: 3 pts · 8+: 4 pts.",bracket:[[1,4],[3,2]],combined:true,single:true,rightTop:"9 Innings",rightBot:"Run Diff"},
+      {no:"08",name:"Cup Pong",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by final placing (CWS double-elim).",format:"Pick 2 of your 3 players (Part 2, no repeats). T1 v T3 · T4 v T2. CWS double-elim.",bracket:[[1,3],[4,2]]},
+      {no:"09",name:"Caps",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Pick 2 of your 3 players (Part 3, no repeats). Semis into finals, scored by place.",bracket:[[2,3],[4,1]],places:true},
+      {no:"10",name:"Flip Cup Down & Back",pill:"3 · 2 · 1",score:"3 · 2 · 1 by final placing (CWS double-elim).",format:"Fill to the line, cheers, drink, flip — go down & back. CWS double-elim."},
     ]},
   ];
   const bEvents=days.flatMap(d=>d.events);
@@ -941,10 +961,22 @@ boot();
     const t=bTotals();
     const arr=teams.map(x=>({num:x.num,color:x.color,members:x.members,total:t[x.num]})).sort((a,b)=>b.total-a.total||a.num-b.num);
     const max=Math.max(1,...arr.map(s=>s.total));
-    $('boStandings').innerHTML=arr.map((s,i)=>'<div class="bo-strow"><div class="bo-rk" style="color:'+bMedals[i]+'">'+(i+1)+'</div><div><div class="bo-nm">Team '+s.num+'</div><div class="bo-mem">'+bEsc(s.members.join(' · '))+'</div></div><div class="bo-tot">'+s.total+'<small>pts</small></div><div class="bo-bar" style="width:'+Math.round(s.total/max*100)+'%;background:'+s.color+'"></div></div>').join('');
+    $('boStandings').innerHTML=arr.map((s,i)=>'<div class="bo-strow" style="border-left:4px solid '+s.color+'"><div class="bo-rk" style="color:'+bMedals[i]+'">'+(i+1)+'</div><div><div class="bo-nm">Team '+s.num+'</div><div class="bo-mem">'+bEsc(s.members.join(' · '))+'</div></div><div class="bo-tot">'+s.total+'<small>pts</small></div><div class="bo-bar" style="width:'+Math.round(s.total/max*100)+'%;background:'+s.color+'"></div></div>').join('');
   }
   function bRenderTeams(){$('boTeamgrid').innerHTML=teams.map(t=>'<div class="bo-tcard" style="border-top-color:'+t.color+'"><div class="bo-tn">Team '+t.num+'</div>'+t.members.map(m=>'<div class="bo-mm"><span class="bo-dot" style="background:'+t.color+'"></span>'+bEsc(m)+'</div>').join('')+'</div>').join('');}
-  function bRenderEvents(){$('boEventlist').innerHTML=days.map(d=>'<div class="bo-dayhdr"><span class="bo-daydot" style="background:'+d.color+'"></span>'+bEsc(d.label)+'</div>'+d.events.map(ev=>'<div class="bo-ev"><div class="bo-evtop"><span class="bo-evno">'+ev.no+'</span><span class="bo-evn">'+bEsc(ev.name)+'</span><span class="bo-pill">'+bEsc(ev.pill)+'</span></div><div class="bo-fmt">'+bEsc(ev.format)+'</div></div>').join('')).join('');}
+  function bTC(n){return (teams.find(t=>t.num===n)||{}).color;}
+  function bBracket(ev){
+    if(!ev.bracket) return '';
+    const sep=ev.combined?'+':'v', sc=ev.combined?'plus':'vs';
+    const semis=ev.bracket.map(p=>'<div class="bo-match"><span class="bo-chip" style="background:'+bTC(p[0])+'">T'+p[0]+'</span><span class="bo-sep '+sc+'">'+sep+'</span><span class="bo-chip" style="background:'+bTC(p[1])+'">T'+p[1]+'</span></div>').join('');
+    let out;
+    if(ev.places) out='<div class="bo-outbox"><div class="bo-outt">Final</div><div class="bo-outb">1st · 2nd</div></div><div class="bo-outbox dot"><div class="bo-outt">3rd Game</div><div class="bo-outb">3rd · 4th</div></div>';
+    else if(ev.single) out='<div class="bo-outbox"><div class="bo-outt">'+bEsc(ev.rightTop||'')+'</div><div class="bo-outb">'+bEsc(ev.rightBot||'')+'</div></div>';
+    else out='<div class="bo-outbox"><div class="bo-outt">CWS</div><div class="bo-outb">Champion</div></div>';
+    return '<div class="bo-bracket"><div class="bo-semis">'+semis+'</div><div class="bo-arrow">&#8594;</div><div class="bo-out">'+out+'</div></div>';
+  }
+  function bRenderEvents(){$('boEventlist').innerHTML=days.map(d=>'<div class="bo-dayhdr"><span class="bo-daydot" style="background:'+d.color+'"></span>'+bEsc(d.label)+'</div>'+d.events.map(ev=>'<div class="bo-ev"><div class="bo-evtop"><span class="bo-evno">'+ev.no+'</span><span class="bo-evn">'+bEsc(ev.name)+'</span><span class="bo-pill">'+bEsc(ev.pill)+'</span></div><div class="bo-fmt">'+bEsc(ev.format)+'</div>'+bBracket(ev)+'</div>').join('')).join('');}
+  function bRenderScoring(){$('boScoreRules').innerHTML='<div class="bo-h" style="margin:24px 0 12px">Points by event</div>'+bEvents.map(ev=>'<div class="bo-srow"><span class="bo-evno">'+ev.no+'</span><span class="bo-srn">'+bEsc(ev.name)+'</span><span class="bo-pill" style="margin-left:auto">'+bEsc(ev.pill)+'</span><div class="bo-srd">'+bEsc(ev.score||'')+'</div></div>').join('');}
   function bRenderGrid(){
     const t=bTotals();
     let h='<thead><tr><th style="text-align:left">Event</th>'+teams.map(x=>'<th><span class="bo-thteam" style="color:'+x.color+'">T'+x.num+'</span></th>').join('')+'</tr></thead><tbody>';
@@ -979,7 +1011,7 @@ boot();
   window.__beerInit=function(){
     if(bStarted)return;bStarted=true;
     try{const sp=sessionStorage.getItem('gabo_pass');if(sp){bPASS=sp;bEDITOR=true;}}catch(e){}
-    bRenderTeams();bRenderEvents();
+    bRenderEvents();bRenderScoring();
     bLoad(()=>{bRenderStandings();});
     setInterval(()=>{
       if(!$('beer').classList.contains('active'))return;
