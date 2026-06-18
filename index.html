@@ -616,6 +616,40 @@ function anyResults(){
 function flag(k,lg){const sz=lg?' lg':'';return `<span class="flagwrap"><img class="flag${sz}" loading="lazy" src="https://flagcdn.com/w80/${ISO(k)}.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="flagfb fbp${POT(k)}${sz}">${k}</span></span>`;}
 function potbadge(k){return '<span class="pb pb'+POT(k)+'">P'+POT(k)+'</span>';}
 
+/* ===== Auto storylines from live ESPN results (bracket-aware) ===== */
+const BCODES=new Set(Object.keys(TEAMS));
+const CHAMPCNT={}; P.forEach(p=>{const c=p.kop.f[0]; CHAMPCNT[c]=(CHAMPCNT[c]||0)+1;});
+function bnorm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z]/g,' ').replace(/\s+/g,' ').trim();}
+const NAME2CODE={}; Object.keys(TEAMS).forEach(c=>{NAME2CODE[bnorm(TEAMS[c][0])]=c;});
+const NAMEALIAS={'united states':'USA','czechia':'CZE','turkiye':'TUR','turkey':'TUR','bosnia herzegovina':'BOS','bosnia and herzegovina':'BOS','bosnia herz':'BOS','curacao':'CUR','congo dr':'DRC','dr congo':'DRC','south korea':'KOR','korea republic':'KOR','ivory coast':'IVC','cote divoire':'IVC','cape verde':'CPV'};
+const ABBRALIAS={BIH:'BOS',CIV:'IVC',MAR:'MOR',CUW:'CUR',COD:'DRC',DZA:'ALG'};
+function codeFor(t){
+  if(!t) return null;
+  const a=(t.abbr||'').toUpperCase();
+  if(BCODES.has(a)) return a;
+  if(ABBRALIAS[a]) return ABBRALIAS[a];
+  const n=bnorm(t.full||t.name); if(NAMEALIAS[n]) return NAMEALIAS[n]; if(NAME2CODE[n]) return NAME2CODE[n];
+  const n2=bnorm(t.name); return NAMEALIAS[n2]||NAME2CODE[n2]||null;
+}
+function autoStorylines(){
+  const fin=(scoreData||[]).filter(e=>e.state==='post');
+  if(!fin.length) return ['Group stage underway &mdash; live scores flash here as games finish.'];
+  const lines=[], champTeams=[], ups=[]; let champWon=0, champStumble=0, big=null;
+  fin.forEach(e=>{
+    const hc=codeFor(e.home), ac=codeFor(e.away);
+    const hs=parseInt(e.home.score,10), as=parseInt(e.away.score,10);
+    if(isNaN(hs)||isNaN(as)) return;
+    const draw=hs===as, winner= hs>as?hc : as>hs?ac : null, loser= hs>as?ac : as>hs?hc : null;
+    if(!big||Math.abs(hs-as)>big.m) big={m:Math.abs(hs-as),h:e.home.name,a:e.away.name,hs,as};
+    [[hc],[ac]].forEach(([c])=>{ if(c&&CHAMPCNT[c]){ const res=draw?'drew':(winner===c?'won':'lost'); if(res==='won')champWon++; else champStumble++; champTeams.push(NAME(c)+' ('+CHAMPCNT[c]+') '+res); } });
+    if(winner&&loser&&BCODES.has(winner)&&BCODES.has(loser)&&POT(winner)>POT(loser)) ups.push({u:winner,f:loser,gap:POT(winner)-POT(loser)});
+  });
+  if(champWon+champStumble>0) lines.push('&#127942; Champion check &mdash; <b>'+champWon+'</b> title-pick team'+(champWon!==1?'s':'')+' won, <b>'+champStumble+'</b> dropped points');
+  if(champTeams.length) lines.push('&#128081; Title picks in action &mdash; '+champTeams.slice(0,4).join(' &middot; '));
+  if(ups.length){ ups.sort((a,b)=>b.gap-a.gap); const u=ups[0]; lines.push('&#128165; Upset &mdash; <b>'+NAME(u.u)+'</b> (Pot '+POT(u.u)+') beat <b>'+NAME(u.f)+'</b> (Pot '+POT(u.f)+')'); }
+  if(big&&big.m>=3) lines.push('&#128293; Biggest result &mdash; <b>'+big.h+' '+big.hs+'&ndash;'+big.as+' '+big.a+'</b>');
+  return lines;
+}
 let lastTickerHTML='';
 function buildTicker(){
   const paidCount=P.filter(p=>isPaid(p)).length;
@@ -626,17 +660,10 @@ function buildTicker(){
     if(e.state==='in') liveItems.push('<span style="color:#ff6b6b;font-weight:900">&#128308; LIVE</span> &mdash; '+e.home.name+' <b>'+s+'&ndash;'+a+'</b> '+e.away.name);
     else if(e.state==='post') liveItems.push('<b>FT</b> &mdash; '+e.home.name+' <b>'+s+'&ndash;'+a+'</b> '+e.away.name);
   });
-  const trend=[
-    "Matchday 1 in the books &mdash; every team has played once. Pool points lock once the group stage wraps (after Matchday 3).",
-    "<b>8 of 12</b> brackets saw their champion pick drop points on Matchday 1 &mdash; Spain (0-0 Cape Verde), Brazil (1-1 Morocco) &amp; Portugal (1-1 Congo DR) all drew.",
-    "Happy campers: the <b>4</b> brackets backing <b>France</b> (3-1 Senegal) or <b>England</b> (4-2 Croatia) &mdash; both champions cruised.",
-    "<b>Spain</b>'s title backers sweating &mdash; Will Chehab, Nick &amp; Rohit need a turnaround after the Cape Verde shock.",
-    "Statement wins: <b>Germany 7-1</b> &middot; <b>Argentina 3-0</b> (Messi hat-trick) &middot; <b>Norway 4-1</b> (Haaland brace) &middot; <b>USA 4-1</b> &middot; <b>Colombia 3-1</b>.",
-    "Bracket-scramblers: <b>Australia</b> stun T&uuml;rkiye, <b>Scotland</b> beat Haiti, <b>Cape Verde</b> hold Spain &mdash; chalk taking early hits.",
-    "Hosts watch: <b>USA</b> rolling, <b>Mexico</b> open 2-0, <b>Canada</b> grab their first-ever World Cup point.",
-    "Still anyone's pool &mdash; the board scores on final group standings, so two more matchdays can flip everything.",
+  const trend=autoStorylines().concat([
+    "Live scores flash here as games finish &mdash; the board scores on final group standings.",
     P.length+" brackets in &middot; "+paidCount+" paid &middot; "+owe+" owe the pot"
-  ];
+  ]);
   const items=liveItems.concat(trend);
   const html=items.map(x=>'<span>&#9679; '+x+'</span>').join('');
   const full=html+html;

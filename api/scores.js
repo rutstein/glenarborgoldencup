@@ -11,6 +11,8 @@ export default async function handler(req, res) {
     const d = await r.json();
     const team = (x) => ({
       name: (x && x.team && (x.team.shortDisplayName || x.team.displayName)) || '?',
+      full: (x && x.team && x.team.displayName) || '',
+      abbr: (x && x.team && x.team.abbreviation) || '',
       logo: (x && x.team && x.team.logo) || '',
       score: x && x.score != null ? x.score : '',
     });
