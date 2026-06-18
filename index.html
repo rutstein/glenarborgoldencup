@@ -627,19 +627,14 @@ function buildTicker(){
     else if(e.state==='post') liveItems.push('<b>FT</b> &mdash; '+e.home.name+' <b>'+s+'&ndash;'+a+'</b> '+e.away.name);
   });
   const trend=[
-    "All "+P.length+" brackets are in &mdash; for now the board ranks <b>boldness</b>, not standings. Nobody's winning yet: these are ceilings.",
-    "The group stage is the whole contest &mdash; <b>62 pts</b> of spread there vs just <b>36</b> in the knockouts.",
-    "<b>Hank</b> is the boldest bracket in the pool: <b>+72</b> above chalk in the group stage.",
-    "<b>Rohit</b> is pure chalk &mdash; lowest ceiling, lowest variance, lands near <b>206</b> no matter what happens.",
-    "All "+P.length+" champions are Pot 1. The <b>32-pt</b> Pot 4 title bet sits completely untouched.",
-    "<b>France</b> reaches the final in <b>7 of 12</b> brackets &mdash; but wins it only once.",
-    "Three brackets picked the identical final: <b>Spain over Argentina</b>.",
-    "<b>Argentina</b> &mdash; finalist 3 times, champion zero. Always the bridesmaid.",
-    "Champions picked &mdash; Brazil 4 &middot; Spain 3 &middot; Portugal 2 &middot; England 2 &middot; France 1.",
-    "<b>Aidan</b> (Senegal) and <b>Will Scott</b> (Ghana) each rode a Pot 3 team to the QF for <b>27 pts</b> &mdash; the biggest single-team hauls in the pool.",
-    "Group A is the battleground: <b>Korea 6 / Mexico 4 / Czech 2</b> to win the group.",
-    "The <b>USA fade</b> is real &mdash; Turkey over the USA in Group D, and Hank has the hosts finishing dead last.",
-    "<b>Jack</b> is the only player whose knockout ceiling (119) tops his group stage (116).",
+    "Matchday 1 in the books &mdash; every team has played once. Pool points lock once the group stage wraps (after Matchday 3).",
+    "<b>8 of 12</b> brackets saw their champion pick drop points on Matchday 1 &mdash; Spain (0-0 Cape Verde), Brazil (1-1 Morocco) &amp; Portugal (1-1 Congo DR) all drew.",
+    "Happy campers: the <b>4</b> brackets backing <b>France</b> (3-1 Senegal) or <b>England</b> (4-2 Croatia) &mdash; both champions cruised.",
+    "<b>Spain</b>'s title backers sweating &mdash; Will Chehab, Nick &amp; Rohit need a turnaround after the Cape Verde shock.",
+    "Statement wins: <b>Germany 7-1</b> &middot; <b>Argentina 3-0</b> (Messi hat-trick) &middot; <b>Norway 4-1</b> (Haaland brace) &middot; <b>USA 4-1</b> &middot; <b>Colombia 3-1</b>.",
+    "Bracket-scramblers: <b>Australia</b> stun T&uuml;rkiye, <b>Scotland</b> beat Haiti, <b>Cape Verde</b> hold Spain &mdash; chalk taking early hits.",
+    "Hosts watch: <b>USA</b> rolling, <b>Mexico</b> open 2-0, <b>Canada</b> grab their first-ever World Cup point.",
+    "Still anyone's pool &mdash; the board scores on final group standings, so two more matchdays can flip everything.",
     P.length+" brackets in &middot; "+paidCount+" paid &middot; "+owe+" owe the pot"
   ];
   const items=liveItems.concat(trend);
