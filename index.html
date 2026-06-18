@@ -61,6 +61,10 @@
     font-size:12px;font-weight:700;cursor:pointer}
   .pill.on{background:var(--gold);color:#1a1400;border-color:var(--gold)}
   .lb{display:flex;flex-direction:column;gap:8px}
+  .storylines{background:linear-gradient(135deg,rgba(245,197,24,.09),rgba(58,160,255,.05));border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:16px}
+  .storylines .sl-h{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+  .storylines .sl-row{font-size:13.5px;color:var(--txt);padding:6px 0;border-top:1px solid rgba(255,255,255,.06)}
+  .storylines .sl-row b{color:var(--gold);font-weight:800}
   .row{display:grid;grid-template-columns:42px 1fr 132px 150px;gap:12px;align-items:center;
     background:linear-gradient(90deg,var(--card),var(--card2));border:1px solid var(--line);
     border-radius:14px;padding:12px 14px;position:relative;overflow:hidden}
@@ -343,6 +347,7 @@
       <h2>Standings</h2>
       <span class="note" id="lbnote"></span>
     </div>
+    <div class="storylines" id="storylines" style="display:none"></div>
     <div class="lb-controls">
       <span class="note" style="margin-right:4px">Sort:</span>
       <span class="pill on" data-sort="auto">Live</span>
@@ -646,8 +651,40 @@ function buildTicker(){
 }
 
 let sortMode='auto';
+function renderStorylines(){
+  const box=document.getElementById('storylines'); if(!box) return;
+  if(!anyResults()){ box.style.display='none'; box.innerHTML=''; return; }
+  const arr=P.map(p=>({p,s:score(p)}));
+  const byEarned=[...arr].sort((a,b)=>b.s.earned-a.s.earned||b.s.poss-a.s.poss);
+  const lines=[];
+  const L=byEarned[0], second=byEarned[1];
+  let lead='&#129351; <b>'+L.p.n+'</b> leads with <b>'+L.s.earned+'</b> pts';
+  if(second){ const m=L.s.earned-second.s.earned; lead += m>0 ? ' &mdash; '+m+' clear of '+second.p.n : ' &mdash; dead even with '+second.p.n; }
+  lines.push(lead);
+  const pg=[...arr].sort((a,b)=>b.s.perfectGroups-a.s.perfectGroups);
+  if(pg[0].s.perfectGroups>0){
+    const top=pg.filter(x=>x.s.perfectGroups===pg[0].s.perfectGroups).map(x=>x.p.n);
+    lines.push('&#127919; '+(top.length>1?top.slice(0,2).join(' &amp; '):top[0])+' nailed <b>'+pg[0].s.perfectGroups+'</b> group'+(pg[0].s.perfectGroups>1?'s':'')+' to the exact order');
+  }
+  const hot=[...arr].filter(x=>x.s.ceil>0&&x.s.earned>0).sort((a,b)=>(b.s.earned/b.s.ceil)-(a.s.earned/a.s.ceil));
+  if(hot[0]) lines.push('&#128293; <b>'+hot[0].p.n+'</b> is cashing the highest share of their ceiling (<b>'+Math.round(hot[0].s.earned/hot[0].s.ceil*100)+'%</b>)');
+  const cold=[...arr].sort((a,b)=>b.s.lost-a.s.lost);
+  if(cold[0]&&cold[0].s.lost>0) lines.push('&#129482; <b>'+cold[0].p.n+'</b> has the most points already busted (<b>'+cold[0].s.lost+'</b> lost)');
+  const koAny=Object.keys(KOBASE).some(r=>(results.ko[r]||[]).length);
+  if(koAny){
+    const order=['r32','r16','qf','sf','f']; let deepest=null; order.forEach(r=>{ if((results.ko[r]||[]).length) deepest=r; });
+    if(deepest){ const alive=P.filter(p=>(results.ko[deepest]||[]).includes(p.kop.f[0])).length;
+      lines.push('&#128081; <b>'+alive+' of '+P.length+'</b> still have their champion alive ('+deepest.toUpperCase()+')'); }
+  } else {
+    lines.push('&#128202; Group stage is in &mdash; knockout points are still on the table, so the board can still swing hard');
+  }
+  const byPoss=[...arr].sort((a,b)=>b.s.poss-a.s.poss);
+  if(byPoss[0].p.n!==L.p.n) lines.push('&#128640; <b>'+byPoss[0].p.n+'</b> still has the highest ceiling left (<b>'+byPoss[0].s.poss+'</b> possible)');
+  box.style.display='block';
+  box.innerHTML='<div class="sl-h">&#128240; Storylines &mdash; the story so far</div>'+lines.slice(0,5).map(l=>'<div class="sl-row">'+l+'</div>').join('');
+}
 function renderLB(){
-  const live=anyResults();
+  const live=anyResults(); renderStorylines();
   document.getElementById('lbnote').textContent = live
     ? 'Live \u2014 sorted by points earned, then what is still mathematically possible.'
     : "No results entered yet \u2014 showing each bracket's ceiling (max possible).";
