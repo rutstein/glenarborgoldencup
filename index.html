@@ -783,7 +783,13 @@ function renderStorylines(){
     if(deepest){ const alive=P.filter(p=>(curKo()[deepest]||[]).includes(p.kop.f[0])).length;
       lines.push('&#128081; <b>'+alive+' of '+P.length+'</b> still have their champion alive ('+deepest.toUpperCase()+')'); }
   } else {
-    lines.push('&#128202; Group stage is in &mdash; knockout points are still on the table, so the board can still swing hard');
+    {
+      const sd=standingsData||[];
+      const allFinal = sd.length>0 && sd.every(g=>(g.teams||[]).every(t=>((t.w||0)+(t.d||0)+(t.l||0))>=3));
+      lines.push(allFinal
+        ? '&#128202; Group stage is final &mdash; knockout points still to come, so the board can still swing hard.'
+        : '&#128202; Group stage still in progress &mdash; these are live projections, nothing\'s locked, and the board will keep moving.');
+    }
   }
   const byPoss=[...arr].sort((a,b)=>b.s.poss-a.s.poss);
   if(byPoss[0].p.n!==L.p.n) lines.push('&#128640; <b>'+byPoss[0].p.n+'</b> still has the highest ceiling left (<b>'+byPoss[0].s.poss+'</b> possible)');
