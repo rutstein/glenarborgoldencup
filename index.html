@@ -13,27 +13,35 @@
     --line:#23304d; --txt:#eaf0fb; --mut:#8a99b8; --mut2:#5e6e8c;
     --gold:#f5c518; --gold2:#caa108; --red:#e01a3c;
     --green:#28c76f; --blue:#3aa0ff;
-    --p1:#f5c518; --p2:#3aa0ff; --p3:#28c76f; --p4:#ff5a5f;
+    --p1:#F3DE3A; --p2:#14BFB2; --p3:#BBE13C; --p4:#FF5A1E;
+    --wc-red:#E5231B; --wc-orange:#FF5A1E; --wc-yellow:#F3DE3A; --wc-lime:#BBE13C;
+    --wc-teal:#14BFB2; --wc-blue:#2E45C8; --wc-purple:#9A7BE6; --wc-pink:#FF4FA0; --wc-green:#0E6B4F;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
   body{background:
-     radial-gradient(1200px 600px at 80% -200px,rgba(245,197,24,.10),transparent 60%),
-     radial-gradient(900px 500px at -10% 0,rgba(224,26,60,.12),transparent 55%),
+     radial-gradient(1100px 560px at 82% -200px,rgba(229,35,27,.13),transparent 60%),
+     radial-gradient(900px 520px at -8% 0,rgba(20,191,178,.10),transparent 55%),
+     radial-gradient(720px 500px at 50% 120%,rgba(154,123,230,.08),transparent 60%),
      var(--bg);min-height:100vh}
   a{color:inherit}
   .wrap{max-width:1180px;margin:0 auto;padding:0 16px 80px}
 
-  header.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);
-    background:linear-gradient(120deg,#10182c,#0a1020)}
-  .hero-inner{max-width:1180px;margin:0 auto;padding:26px 16px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-  .trophy{font-size:46px;filter:drop-shadow(0 4px 14px rgba(245,197,24,.45))}
-  .hero h1{font-size:30px;font-weight:900;letter-spacing:-.5px;line-height:1;
-    background:linear-gradient(90deg,#fff,#ffe89a 60%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .hero .sub{color:var(--mut);font-size:13px;margin-top:6px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
-  .hero .badge-wc{margin-left:auto;background:linear-gradient(135deg,var(--red),#a3122c);
-    padding:8px 14px;border-radius:30px;font-weight:800;font-size:12px;letter-spacing:1px;
-    box-shadow:0 6px 20px rgba(224,26,60,.35);border:1px solid rgba(255,255,255,.12)}
+  header.hero{position:relative;overflow:hidden}
+  .hero-stripes{position:absolute;inset:0;background:
+    repeating-radial-gradient(circle at 50% 138%,
+      var(--wc-red) 0 24px,var(--wc-orange) 24px 48px,var(--wc-yellow) 48px 72px,var(--wc-lime) 72px 96px,
+      var(--wc-teal) 96px 120px,var(--wc-blue) 120px 144px,var(--wc-purple) 144px 168px,var(--wc-pink) 168px 192px);}
+  .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,11,22,.30),rgba(7,11,22,.74) 70%,var(--bg))}
+  .hero-inner{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:30px 16px 26px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .hero-mark{font-family:'Alfa Slab One',serif;font-size:62px;line-height:.74;color:var(--wc-red);
+    -webkit-text-stroke:2.5px #fff;text-shadow:3px 5px 0 rgba(0,0,0,.4);flex:none}
+  .hero h1{font-size:clamp(26px,4.2vw,38px);font-weight:900;letter-spacing:-.5px;line-height:1;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.5)}
+  .hero .sub{color:#dfe7f5;font-size:13px;margin-top:7px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.6)}
+  .hero .badge-wc{margin-left:auto;background:#fff;color:var(--wc-red);
+    padding:8px 15px;border-radius:30px;font-weight:900;font-size:12px;letter-spacing:1px;
+    box-shadow:0 6px 20px rgba(0,0,0,.3)}
+  .rainbow{height:6px;border:0;background:linear-gradient(90deg,var(--wc-red),var(--wc-orange),var(--wc-yellow),var(--wc-lime),var(--wc-teal),var(--wc-blue),var(--wc-purple),var(--wc-pink))}
   .ticker{background:#05080f;border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap}
   .ticker .run{display:inline-block;padding:7px 0;animation:scroll 120s linear infinite;font-size:12.5px;color:var(--mut);font-weight:600}
   .ticker .run span{margin:0 22px}
@@ -46,7 +54,7 @@
   .tab{padding:14px 16px;font-weight:800;font-size:13.5px;color:var(--mut);cursor:pointer;
     border-bottom:3px solid transparent;white-space:nowrap;letter-spacing:.2px}
   .tab:hover{color:var(--txt)}
-  .tab.active{color:#fff;border-bottom-color:var(--gold)}
+  .tab.active{color:#fff;border-bottom-color:var(--wc-red)}
 
   .panel{display:none;padding-top:22px}
   .panel.active{display:block;animation:fade .25s ease}
@@ -59,7 +67,7 @@
   .lb-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
   .pill{background:var(--card);border:1px solid var(--line);color:var(--mut);padding:7px 12px;border-radius:20px;
     font-size:12px;font-weight:700;cursor:pointer}
-  .pill.on{background:var(--gold);color:#1a1400;border-color:var(--gold)}
+  .pill.on{background:var(--wc-red);color:#fff;border-color:var(--wc-red)}
   .lb{display:flex;flex-direction:column;gap:8px}
   .projbanner{display:flex;align-items:center;gap:11px;background:rgba(245,197,24,.10);border:1px solid rgba(245,197,24,.42);border-radius:12px;padding:11px 14px;margin-bottom:14px;font-size:13px;color:#f0d98a;line-height:1.45}
   .projbanner .pb-tag{background:var(--gold);color:#1a1205;font-weight:900;font-size:10px;letter-spacing:.5px;padding:4px 9px;border-radius:6px;flex:none;text-transform:uppercase}
@@ -335,15 +343,17 @@
 <body>
 
 <header class="hero">
+  <div class="hero-stripes"></div>
   <div class="hero-inner">
-    <div class="trophy">&#127942;</div>
+    <div class="hero-mark">26</div>
     <div>
       <h1>Glen Arbor Golden Cup</h1>
       <div class="sub">2026 World Cup Prediction Pool &middot; Live Scoring</div>
     </div>
-    <div class="badge-wc">&#9917; WC 2026</div>
+    <div class="badge-wc">&#9917; Live</div>
   </div>
 </header>
+<div class="rainbow"></div>
 <div class="ticker"><div class="run" id="ticker"></div></div>
 
 <nav class="tabs"><div class="tabs-inner">
