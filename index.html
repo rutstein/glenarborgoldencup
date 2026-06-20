@@ -61,6 +61,11 @@
     font-size:12px;font-weight:700;cursor:pointer}
   .pill.on{background:var(--gold);color:#1a1400;border-color:var(--gold)}
   .lb{display:flex;flex-direction:column;gap:8px}
+  .projbanner{display:flex;align-items:center;gap:11px;background:rgba(245,197,24,.10);border:1px solid rgba(245,197,24,.42);border-radius:12px;padding:11px 14px;margin-bottom:14px;font-size:13px;color:#f0d98a;line-height:1.45}
+  .projbanner .pb-tag{background:var(--gold);color:#1a1205;font-weight:900;font-size:10px;letter-spacing:.5px;padding:4px 9px;border-radius:6px;flex:none;text-transform:uppercase}
+  .projbanner b{color:#fff;font-weight:800}
+  .gt-final{color:var(--green);font-size:9px;font-weight:900;letter-spacing:.4px}
+  .gt-prog{color:var(--mut2);font-size:9px;font-weight:800;letter-spacing:.4px}
   .storylines{background:linear-gradient(135deg,rgba(245,197,24,.09),rgba(58,160,255,.05));border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:16px}
   .storylines .sl-h{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
   .storylines .sl-row{font-size:13.5px;color:var(--txt);padding:6px 0;border-top:1px solid rgba(255,255,255,.06)}
@@ -108,7 +113,7 @@
   .scnote{font-size:11px;color:var(--mut2)}
   .gt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px}
   .gt{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
-  .gt-h{font-weight:900;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+  .gt-h{font-weight:900;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
   .gt-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;border-top:1px solid rgba(255,255,255,.04)}
   .gt-row:first-of-type{border-top:0}
   .gt-row.adv{background:rgba(40,199,111,.05)}
@@ -358,6 +363,7 @@
       <h2>Standings</h2>
       <span class="note" id="lbnote"></span>
     </div>
+    <div class="projbanner" id="projbanner" style="display:none"></div>
     <div class="storylines" id="storylines" style="display:none"></div>
     <div class="lb-controls">
       <span class="note" style="margin-right:4px">Sort:</span>
@@ -690,12 +696,15 @@ function loadStandings(cb){ fetch('/api/standings',{cache:'no-store'}).then(r=>r
 function renderGroupTables(){
   const box=document.getElementById('grouptables'); if(!box) return;
   if(!standingsData||!standingsData.length){ box.innerHTML='<div class="scempty">Group tables appear once games kick off.</div>'; return; }
-  box.innerHTML='<div class="gt-grid">'+standingsData.map(grp=>
-    '<div class="gt"><div class="gt-h">Group '+grp.group+'</div>'+(grp.teams||[]).map((t,i)=>{
+  box.innerHTML='<div class="gt-grid">'+standingsData.map(grp=>{
+    const gps=(grp.teams||[]).map(t=>(t.w||0)+(t.d||0)+(t.l||0));
+    const fin=gps.length===4 && gps.every(x=>x>=3);
+    const tag=fin?'<span class="gt-final">Final</span>':'<span class="gt-prog">MD '+Math.max(0,...gps)+'/3</span>';
+    return '<div class="gt"><div class="gt-h"><span>Group '+grp.group+'</span>'+tag+'</div>'+(grp.teams||[]).map((t,i)=>{
       const c=codeFor(t), adv=i<2;
       return '<div class="gt-row'+(adv?' adv':'')+'"><span class="gt-pos">'+(t.rank||i+1)+'</span>'+(c?flag(c):'<span></span>')+'<span class="gt-tn">'+(c?NAME(c):t.name)+'</span><span class="gt-rec">'+(t.w||0)+'-'+(t.d||0)+'-'+(t.l||0)+'</span><span class="gt-pts">'+(t.pts!=null?t.pts:0)+'</span></div>';
-    }).join('')+'</div>'
-  ).join('')+'</div>';
+    }).join('')+'</div>';
+  }).join('')+'</div>';
 }
 let lastTickerHTML='';
 function buildTicker(){
@@ -754,6 +763,11 @@ function renderStorylines(){
 }
 function renderLB(){
   const live=anyResults(); renderStorylines();
+  const pb=document.getElementById('projbanner');
+  if(pb){
+    if(isProjected()){ pb.style.display='flex'; pb.innerHTML='<span class="pb-tag">Projected</span><span>These standings are <b>not locked in</b> &mdash; they update live from ESPN. '+(groupsProjected()?'Groups aren’t final until all three matchdays are played, so positions (and points) can still change.':'Knockout results are still coming in.')+'</span>'; }
+    else pb.style.display='none';
+  }
   document.getElementById('lbnote').textContent = isProjected()
     ? 'Projected \u2014 scored live off ESPN results (provisional, not the official locked record).'
     : live
