@@ -16,32 +16,30 @@
     --p1:#F3DE3A; --p2:#14BFB2; --p3:#BBE13C; --p4:#FF5A1E;
     --wc-red:#E5231B; --wc-orange:#FF5A1E; --wc-yellow:#F3DE3A; --wc-lime:#BBE13C;
     --wc-teal:#14BFB2; --wc-blue:#2E45C8; --wc-purple:#9A7BE6; --wc-pink:#FF4FA0; --wc-green:#0E6B4F;
+    --usa-blue:#2E42E0; --usa-red:#E5231B; --usa-blue2:#5B8DEF;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
   body{background:
-     radial-gradient(1100px 560px at 82% -200px,rgba(229,35,27,.13),transparent 60%),
-     radial-gradient(900px 520px at -8% 0,rgba(20,191,178,.10),transparent 55%),
-     radial-gradient(720px 500px at 50% 120%,rgba(154,123,230,.08),transparent 60%),
+     radial-gradient(1100px 560px at 82% -200px,rgba(46,66,224,.16),transparent 60%),
+     radial-gradient(900px 520px at -8% 0,rgba(229,35,27,.12),transparent 55%),
+     radial-gradient(720px 500px at 50% 120%,rgba(46,66,224,.08),transparent 60%),
      var(--bg);min-height:100vh}
   a{color:inherit}
   .wrap{max-width:1180px;margin:0 auto;padding:0 16px 80px}
 
-  header.hero{position:relative;overflow:hidden}
-  .hero-stripes{position:absolute;inset:0;background:
-    repeating-radial-gradient(circle at 50% 138%,
-      var(--wc-red) 0 24px,var(--wc-orange) 24px 48px,var(--wc-yellow) 48px 72px,var(--wc-lime) 72px 96px,
-      var(--wc-teal) 96px 120px,var(--wc-blue) 120px 144px,var(--wc-purple) 144px 168px,var(--wc-pink) 168px 192px);}
-  .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,11,22,.30),rgba(7,11,22,.74) 70%,var(--bg))}
+  header.hero{position:relative;overflow:hidden;background:var(--usa-blue)}
+  .hero-bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,rgba(10,14,40,.62) 0%,rgba(10,14,40,.22) 45%,rgba(10,14,40,0) 72%),linear-gradient(180deg,transparent 62%,var(--bg))}
   .hero-inner{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:30px 16px 26px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-  .hero-mark{font-family:'Alfa Slab One',serif;font-size:62px;line-height:.74;color:var(--wc-red);
-    -webkit-text-stroke:2.5px #fff;text-shadow:3px 5px 0 rgba(0,0,0,.4);flex:none}
+  .hero-mark{font-family:'Alfa Slab One',serif;font-size:62px;line-height:.74;color:#fff;
+    -webkit-text-stroke:2.5px var(--usa-red);text-shadow:3px 5px 0 rgba(0,0,0,.4);flex:none}
   .hero h1{font-size:clamp(26px,4.2vw,38px);font-weight:900;letter-spacing:-.5px;line-height:1;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.5)}
   .hero .sub{color:#dfe7f5;font-size:13px;margin-top:7px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.6)}
   .hero .badge-wc{margin-left:auto;background:#fff;color:var(--wc-red);
     padding:8px 15px;border-radius:30px;font-weight:900;font-size:12px;letter-spacing:1px;
     box-shadow:0 6px 20px rgba(0,0,0,.3)}
-  .rainbow{height:6px;border:0;background:linear-gradient(90deg,var(--wc-red),var(--wc-orange),var(--wc-yellow),var(--wc-lime),var(--wc-teal),var(--wc-blue),var(--wc-purple),var(--wc-pink))}
+  .rainbow{height:6px;border:0;background:repeating-linear-gradient(90deg,var(--usa-red) 0 40px,#fff 40px 80px,var(--usa-blue) 80px 120px)}
   .ticker{background:#05080f;border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap}
   .ticker .run{display:inline-block;padding:7px 0;animation:scroll 120s linear infinite;font-size:12.5px;color:var(--mut);font-weight:600}
   .ticker .run span{margin:0 22px}
@@ -343,7 +341,20 @@
 <body>
 
 <header class="hero">
-  <div class="hero-stripes"></div>
+  <svg class="hero-bg" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect width="1200" height="300" fill="#2E42E0"/>
+    <path d="M-40,55 C260,5 620,95 1240,30 L1240,72 C620,140 260,48 -40,98 Z" fill="#E5231B"/>
+    <path d="M-40,98 C260,48 620,140 1240,72 L1240,104 C620,175 260,82 -40,132 Z" fill="#ffffff" opacity=".95"/>
+    <path d="M-40,210 C300,160 700,255 1240,190 L1240,238 C700,305 300,205 -40,258 Z" fill="#E5231B" opacity=".95"/>
+    <path d="M-40,250 C300,200 700,295 1240,232 L1240,270 C700,345 300,248 -40,300 Z" fill="#5B8DEF" opacity=".9"/>
+    <defs><g id="hs"><path d="M0,-11 L3.4,-3.5 L11,-3.5 L4.8,1.7 L7.1,9.6 L0,4.6 L-7.1,9.6 L-4.8,1.7 L-11,-3.5 L-3.4,-3.5 Z" fill="#fff"/></g></defs>
+    <use href="#hs" transform="translate(135,150)"/><use href="#hs" transform="translate(250,118) scale(.8)"/>
+    <use href="#hs" transform="translate(360,182) scale(1.1)"/><use href="#hs" transform="translate(520,140) scale(.7)"/>
+    <use href="#hs" transform="translate(645,205) scale(1)"/><use href="#hs" transform="translate(775,128) scale(.85)"/>
+    <use href="#hs" transform="translate(905,185) scale(1.15)"/><use href="#hs" transform="translate(1035,140) scale(.8)"/>
+    <use href="#hs" transform="translate(1125,210) scale(1)"/><use href="#hs" transform="translate(195,238) scale(.75)"/>
+    <use href="#hs" transform="translate(455,255) scale(.9)"/><use href="#hs" transform="translate(965,262) scale(.7)"/>
+  </svg>
   <div class="hero-inner">
     <div class="hero-mark">26</div>
     <div>
