@@ -33,7 +33,8 @@
   .hero::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,rgba(10,14,40,.62) 0%,rgba(10,14,40,.22) 45%,rgba(10,14,40,0) 72%),linear-gradient(180deg,transparent 62%,var(--bg))}
   .hero-inner{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:30px 16px 26px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
   .hero-mark{font-family:'Alfa Slab One',serif;font-size:62px;line-height:.74;color:#fff;
-    -webkit-text-stroke:2.5px var(--usa-red);text-shadow:3px 5px 0 rgba(0,0,0,.4);flex:none}
+    -webkit-text-stroke:2.5px var(--usa-red);text-shadow:3px 5px 0 rgba(0,0,0,.4);flex:none;margin-left:auto}
+  .crest{width:56px;height:56px;flex:none;border-radius:15px;box-shadow:0 5px 16px rgba(0,0,0,.35)}
   .hero h1{font-size:clamp(26px,4.2vw,38px);font-weight:900;letter-spacing:-.5px;line-height:1;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.5)}
   .hero .sub{color:#dfe7f5;font-size:13px;margin-top:7px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.6)}
   .hero .badge-wc{margin-left:auto;background:#fff;color:var(--wc-red);
@@ -43,11 +44,11 @@
   .ticker{background:#05080f;border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap}
   .ticker .run{display:inline-block;padding:7px 0;animation:scroll 120s linear infinite;font-size:12.5px;color:var(--mut);font-weight:600}
   .ticker .run span{margin:0 22px}
-  .ticker .run b{color:var(--gold)}
+  .ticker .run b{color:#fff}
   @keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
-  nav.tabs{position:sticky;top:0;z-index:40;background:rgba(7,11,22,.86);backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--line)}
+  nav.tabs{position:sticky;top:0;z-index:40;background:rgba(10,16,40,.88);backdrop-filter:blur(10px);
+    border-bottom:3px solid transparent;border-image:repeating-linear-gradient(90deg,var(--usa-red) 0 30px,#fff 30px 60px,var(--usa-blue) 60px 90px) 1}
   .tabs-inner{max-width:1180px;margin:0 auto;display:flex;gap:4px;padding:0 12px;overflow-x:auto}
   .tab{padding:14px 16px;font-weight:800;font-size:13.5px;color:var(--mut);cursor:pointer;
     border-bottom:3px solid transparent;white-space:nowrap;letter-spacing:.2px}
@@ -59,7 +60,7 @@
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
   .section-h{display:flex;align-items:baseline;gap:10px;margin:6px 2px 14px;flex-wrap:wrap}
-  .section-h h2{font-size:19px;font-weight:900;letter-spacing:-.3px}
+  .section-h h2{font-size:19px;font-weight:900;letter-spacing:-.3px;padding-left:11px;border-left:4px solid var(--usa-red)}
   .section-h .note{color:var(--mut);font-size:12.5px;font-weight:600}
 
   .lb-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
@@ -72,10 +73,10 @@
   .projbanner b{color:#fff;font-weight:800}
   .gt-final{color:var(--green);font-size:9px;font-weight:900;letter-spacing:.4px}
   .gt-prog{color:var(--mut2);font-size:9px;font-weight:800;letter-spacing:.4px}
-  .storylines{background:linear-gradient(135deg,rgba(245,197,24,.09),rgba(58,160,255,.05));border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:16px}
-  .storylines .sl-h{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+  .storylines{background:linear-gradient(135deg,rgba(229,35,27,.10),rgba(46,66,224,.10));border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:16px}
+  .storylines .sl-h{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--usa-blue2);margin-bottom:8px}
   .storylines .sl-row{font-size:13.5px;color:var(--txt);padding:6px 0;border-top:1px solid rgba(255,255,255,.06)}
-  .storylines .sl-row b{color:var(--gold);font-weight:800}
+  .storylines .sl-row b{color:#fff;font-weight:800}
   .row{display:grid;grid-template-columns:42px 1fr 132px 150px;gap:12px;align-items:center;
     background:linear-gradient(90deg,var(--card),var(--card2));border:1px solid var(--line);
     border-radius:14px;padding:12px 14px;position:relative;overflow:hidden}
@@ -119,7 +120,7 @@
   .scnote{font-size:11px;color:var(--mut2)}
   .gt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px}
   .gt{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
-  .gt-h{font-weight:900;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+  .gt-h{font-weight:900;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--usa-blue2);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
   .gt-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;border-top:1px solid rgba(255,255,255,.04)}
   .gt-row:first-of-type{border-top:0}
   .gt-row.adv{background:rgba(40,199,111,.05)}
@@ -300,10 +301,10 @@
   .potgrouphdr{grid-column:1/-1;font-size:10px;font-weight:900;letter-spacing:.6px;color:var(--mut2);
     margin-top:8px;text-transform:uppercase}
   .btnrow{display:flex;gap:10px;margin:18px 0 4px;flex-wrap:wrap}
-  .btn{background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:10px 16px;border-radius:10px;
+  .btn{background:var(--usa-blue);border:1px solid var(--usa-blue);color:#fff;padding:10px 16px;border-radius:10px;
     font-weight:800;font-size:12.5px;cursor:pointer}
   .btn.danger{background:rgba(224,26,60,.14);border-color:rgba(224,26,60,.4);color:#ff8095}
-  .btn:hover{border-color:#46587e}
+  .btn:hover{filter:brightness(1.12)}
   .saved-note{color:var(--green);font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;margin-top:6px}
   .lockbox{max-width:430px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:10px auto}
   .lockttl{font-weight:900;font-size:16px;margin-bottom:8px}
@@ -356,12 +357,19 @@
     <use href="#hs" transform="translate(455,255) scale(.9)"/><use href="#hs" transform="translate(965,262) scale(.7)"/>
   </svg>
   <div class="hero-inner">
-    <div class="hero-mark">26</div>
+    <svg class="crest" viewBox="0 0 64 64" aria-label="Glen Arbor Golden Cup crest">
+      <rect width="64" height="64" rx="15" fill="#fff"/>
+      <g fill="none" stroke="#2E42E0" stroke-width="3"><path d="M24 19 C17 19 17 30 26 30"/><path d="M40 19 C47 19 47 30 38 30"/></g>
+      <path fill="#2E42E0" d="M23 16 H41 V26 C41 35 36 40 32 40 C28 40 23 35 23 26 Z"/>
+      <rect x="30" y="39" width="4" height="6" fill="#2E42E0"/>
+      <rect x="23" y="45" width="18" height="4" rx="2" fill="#2E42E0"/>
+      <rect x="26" y="49" width="12" height="3.5" rx="1.5" fill="#E5231B"/>
+    </svg>
     <div>
       <h1>Glen Arbor Golden Cup</h1>
       <div class="sub">2026 World Cup Prediction Pool &middot; Live Scoring</div>
     </div>
-    <div class="badge-wc">&#9917; Live</div>
+    <div class="hero-mark">26</div>
   </div>
 </header>
 <div class="rainbow"></div>
