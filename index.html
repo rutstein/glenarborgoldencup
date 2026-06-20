@@ -376,7 +376,7 @@
   </section>
 
   <section class="panel" id="br">
-    <div class="section-h"><h2>Brackets</h2><span class="note">Green = correct &amp; locked &middot; struck-through = missed &middot; plain = pending</span></div>
+    <div class="section-h"><h2>Brackets</h2><span class="note">Green = correct (live) &middot; struck-through = missed &middot; plain = pending</span></div>
     <div class="psel" id="psel"></div>
     <div id="brbody"></div>
   </section>
@@ -597,7 +597,7 @@ function loadRemote(cb){
 }
 function flashSaved(){const n=document.getElementById('savedNote');if(!n)return;n.style.display='flex';clearTimeout(saveTimer);saveTimer=setTimeout(()=>n.style.display='none',1600);}
 
-function koFinal(r){ return (results.ko[r]||[]).length>=KOREQ[r]; }
+function koFinal(r){ return (curKo()[r]||[]).length>=KOREQ[r]; }
 function score(p){
   let earned=0, lost=0, ceil=0;
   GORDER.forEach(G=>{
@@ -608,22 +608,22 @@ function score(p){
     });
   });
   Object.keys(KOBASE).forEach(r=>{
-    const adv=results.ko[r]||[]; const locked=koFinal(r);
+    const adv=curKo()[r]||[]; const locked=koFinal(r);
     p.kop[r].forEach(t=>{
       const v=KOBASE[r]*POT(t); ceil+=v;
       if(adv.includes(t)) earned+=v; else if(locked) lost+=v;
     });
   });
   // Tiebreakers: (1) picked the actual champion, (2) number of perfectly-called groups (all 4 spots correct)
-  const actualChamp=(results.ko.f||[])[0];
+  const actualChamp=(curKo().f||[])[0];
   const champHit = actualChamp ? (p.kop.f[0]===actualChamp ? 1 : 0) : 0;
   let perfectGroups=0;
-  GORDER.forEach(G=>{ const a=results.groups[G]; if(a && p.gp[G].every((pick,i)=>a[i]===pick.t)) perfectGroups++; });
+  GORDER.forEach(G=>{ const a=curGroups()[G]; if(a && p.gp[G].every((pick,i)=>a[i]===pick.t)) perfectGroups++; });
   return {earned,lost,ceil,poss:ceil-lost,champHit,perfectGroups};
 }
 function anyResults(){
   if(Object.keys(curGroups()).length) return true;
-  return Object.keys(KOBASE).some(r=>(results.ko[r]||[]).length);
+  return Object.keys(KOBASE).some(r=>(curKo()[r]||[]).length);
 }
 
 function flag(k,lg){const sz=lg?' lg':'';return `<span class="flagwrap"><img class="flag${sz}" loading="lazy" src="https://flagcdn.com/w80/${ISO(k)}.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="flagfb fbp${POT(k)}${sz}">${k}</span></span>`;}
@@ -665,9 +665,20 @@ function autoStorylines(){
 }
 /* ===== Live group standings + projected leaderboard ===== */
 const TEAM2GROUP={}; GORDER.forEach(G=>{ (P[0].gp[G]||[]).forEach(x=>{TEAM2GROUP[x.t]=G;}); });
-let standingsData=null, projGroups=null;
-function isProjected(){ return !!(projGroups && Object.keys(projGroups).length) && Object.keys(results.groups).length===0; }
-function curGroups(){ return isProjected() ? projGroups : results.groups; }
+let standingsData=null, projGroups=null, projKo=null;
+function groupsProjected(){ return !!(projGroups && Object.keys(projGroups).length) && Object.keys(results.groups).length===0; }
+function officialKo(){ return Object.keys(KOBASE).some(r=>(results.ko[r]||[]).length); }
+function koProjected(){ return !!(projKo && Object.keys(KOBASE).some(r=>(projKo[r]||[]).length)) && !officialKo(); }
+function isProjected(){ return groupsProjected() || koProjected(); }
+function curGroups(){ return groupsProjected() ? projGroups : results.groups; }
+function curKo(){ return koProjected() ? projKo : results.ko; }
+function buildProjKo(raw){
+  if(!raw){ projKo=null; return; }
+  const k={r32:[],r16:[],qf:[],sf:[],f:[]};
+  Object.keys(k).forEach(r=>{ (raw[r]||[]).forEach(t=>{ const c=codeFor(t); if(c&&!k[r].includes(c)) k[r].push(c); }); });
+  projKo=k;
+}
+function loadKo(cb){ fetch('/api/ko',{cache:'no-store'}).then(r=>r.json()).then(o=>{ buildProjKo(o&&o.ko); if(cb)cb(); }).catch(()=>{ if(cb)cb(); }); }
 function buildProjGroups(){
   projGroups=null; if(!standingsData) return;
   const pg={};
@@ -728,10 +739,10 @@ function renderStorylines(){
   if(hot[0]) lines.push('&#128293; <b>'+hot[0].p.n+'</b> is cashing the highest share of their ceiling (<b>'+Math.round(hot[0].s.earned/hot[0].s.ceil*100)+'%</b>)');
   const cold=[...arr].sort((a,b)=>b.s.lost-a.s.lost);
   if(cold[0]&&cold[0].s.lost>0) lines.push('&#129482; <b>'+cold[0].p.n+'</b> has the most points already busted (<b>'+cold[0].s.lost+'</b> lost)');
-  const koAny=Object.keys(KOBASE).some(r=>(results.ko[r]||[]).length);
+  const koAny=Object.keys(KOBASE).some(r=>(curKo()[r]||[]).length);
   if(koAny){
-    const order=['r32','r16','qf','sf','f']; let deepest=null; order.forEach(r=>{ if((results.ko[r]||[]).length) deepest=r; });
-    if(deepest){ const alive=P.filter(p=>(results.ko[deepest]||[]).includes(p.kop.f[0])).length;
+    const order=['r32','r16','qf','sf','f']; let deepest=null; order.forEach(r=>{ if((curKo()[r]||[]).length) deepest=r; });
+    if(deepest){ const alive=P.filter(p=>(curKo()[deepest]||[]).includes(p.kop.f[0])).length;
       lines.push('&#128081; <b>'+alive+' of '+P.length+'</b> still have their champion alive ('+deepest.toUpperCase()+')'); }
   } else {
     lines.push('&#128202; Group stage is in &mdash; knockout points are still on the table, so the board can still swing hard');
@@ -744,7 +755,7 @@ function renderStorylines(){
 function renderLB(){
   const live=anyResults(); renderStorylines();
   document.getElementById('lbnote').textContent = isProjected()
-    ? 'Projected \u2014 scored live off the current group tables (not final until the group stage ends).'
+    ? 'Projected \u2014 scored live off ESPN results (provisional, not the official locked record).'
     : live
     ? 'Live \u2014 sorted by points earned, then what is still mathematically possible.'
     : "No results entered yet \u2014 showing each bracket's ceiling (max possible).";
@@ -788,7 +799,7 @@ function renderPsel(){
 function renderBracket(){
   const p=P[selPlayer];
   const gcards=GORDER.map(G=>{
-    const actual=results.groups[G];
+    const actual=curGroups()[G];
     const rows=p.gp[G].map((pick,i)=>{
       let cls='',chk='';
       if(actual && actual[i]){ if(actual[i]===pick.t){cls='hit';chk='\u2713';} else {cls='miss';chk='\u2715';} }
@@ -797,7 +808,7 @@ function renderBracket(){
     return '<div class="gcard"><h4>Group '+G+' <span class="gt">'+p.gp[G].reduce((a,b)=>a+b.pts,0)+' pts</span></h4>'+rows+'</div>';
   }).join('');
   const kocols=Object.keys(KOBASE).map(r=>{
-    const adv=results.ko[r]||[], locked=koFinal(r);
+    const adv=curKo()[r]||[], locked=koFinal(r);
     const teams=p.kop[r].map(t=>{
       let cls=''; if(adv.includes(t)) cls='hit'; else if(locked) cls='miss';
       return '<div class="koteam '+cls+'">'+flag(t)+'<span class="tn">'+NAME(t)+'</span><span class="pts">+'+(KOBASE[r]*POT(t))+'</span></div>';
@@ -969,18 +980,18 @@ function renderResultsTab(){
 function renderResults(){
   const body=document.getElementById('rsbody'); if(!body) return;
   const note=document.getElementById('rsnote');
-  if(note) note.textContent = anyResults() ? 'The official results, live as they come in.' : '';
+  if(note) note.textContent = isProjected() ? 'Live from ESPN \u2014 provisional until results are finalized.' : (anyResults() ? 'The official results.' : '');
   if(!anyResults()){
-    body.innerHTML='<div class="rs-empty">Nothing official yet \u2014 results appear here the moment the commissioner enters them.</div>';
+    body.innerHTML='<div class="rs-empty">Nothing yet \u2014 results appear here as games are played.</div>';
     return;
   }
-  const champ=(results.ko.f||[])[0];
+  const champ=(curKo().f||[])[0];
   let champBanner='';
   if(champ){
     champBanner='<div class="champ-banner">'+flag(champ,true)+'<div><div class="cl">Champion</div><div class="cn">'+NAME(champ)+' '+potbadge(champ)+'</div></div><div class="ctrophy">&#127942;</div></div>';
   }
   const gcards=GORDER.map(G=>{
-    const a=results.groups[G];
+    const a=curGroups()[G];
     const rows=[0,1,2,3].map(i=>{
       const t=a&&a[i];
       if(!t) return '<div class="grow"><span class="pos">'+(i+1)+'</span><span class="tn" style="color:var(--mut2)">&mdash;</span></div>';
@@ -991,7 +1002,7 @@ function renderResults(){
     return '<div class="gcard"><h4>Group '+G+' <span class="gt">'+tag+'</span></h4>'+rows+'</div>';
   }).join('');
   const kocols=Object.keys(KOBASE).map(r=>{
-    const adv=(results.ko[r]||[]).slice().sort((x,y)=>POT(x)-POT(y)||NAME(x).localeCompare(NAME(y)));
+    const adv=(curKo()[r]||[]).slice().sort((x,y)=>POT(x)-POT(y)||NAME(x).localeCompare(NAME(y)));
     const teams=adv.length?adv.map(t=>'<div class="koteam">'+flag(t)+'<span class="tn">'+NAME(t)+'</span></div>').join(''):'<div class="koteam"><span class="tn" style="color:var(--mut2)">&mdash;</span></div>';
     return '<div class="kocol"><h4>'+r.toUpperCase()+'<small>'+adv.length+'/'+KOREQ[r]+' through</small></h4>'+teams+'</div>';
   }).join('');
@@ -1005,7 +1016,7 @@ function renderAll(){
 }
 function boot(){
   buildTicker();
-  function liveTick(){ refreshScores(); loadStandings(()=>{ renderGroupTables(); renderLB(); renderPsel(); renderBracket(); }); }
+  function liveTick(){ refreshScores(); loadStandings(()=> loadKo(()=>{ renderGroupTables(); renderLB(); renderPsel(); renderBracket(); renderResults(); })); }
   liveTick(); setInterval(liveTick,30000);
   if(API){
     try{const sp=sessionStorage.getItem('gagc_pass'); if(sp){PASS=sp;EDITOR=true;}}catch(e){}
