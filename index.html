@@ -73,6 +73,10 @@
   .projbanner b{color:#fff;font-weight:800}
   .gt-final{color:var(--green);font-size:9px;font-weight:900;letter-spacing:.4px}
   .gt-prog{color:var(--mut2);font-size:9px;font-weight:800;letter-spacing:.4px}
+  .payout{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;background:linear-gradient(135deg,rgba(46,66,224,.13),rgba(229,35,27,.10));border:1px solid var(--line);border-radius:12px;padding:11px 15px}
+  .payout .po-h{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--usa-blue2)}
+  .payout .po{font-size:14px;font-weight:700;color:var(--txt)}
+  .payout .po b{font-weight:900;color:#fff;margin-right:4px}
   .storylines{background:linear-gradient(135deg,rgba(229,35,27,.10),rgba(46,66,224,.10));border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:16px}
   .storylines .sl-h{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--usa-blue2);margin-bottom:8px}
   .storylines .sl-row{font-size:13.5px;color:var(--txt);padding:6px 0;border-top:1px solid rgba(255,255,255,.06)}
@@ -393,6 +397,7 @@
       <span class="note" id="lbnote"></span>
     </div>
     <div class="projbanner" id="projbanner" style="display:none"></div>
+    <div class="payout"><span class="po-h">&#128176; Payout</span><span class="po"><b>&#129351; 1st</b> $150</span><span class="po"><b>&#129352; 2nd</b> $70</span><span class="po"><b>&#129353; 3rd</b> $20</span></div>
     <div class="storylines" id="storylines" style="display:none"></div>
     <div class="lb-controls">
       <span class="note" style="margin-right:4px">Sort:</span>
@@ -442,10 +447,8 @@
         <div class="stab" data-sub="qf">QF <span id="c-qf" class="kocount"></span></div>
         <div class="stab" data-sub="sf">SF <span id="c-sf" class="kocount"></span></div>
         <div class="stab" data-sub="f">Final <span id="c-f" class="kocount"></span></div>
-        <div class="stab" data-sub="pay">&#128176; Payments</div>
       </div>
       <div id="res-gs" class="res-sub"><div class="res-groups" id="resgroups"></div></div>
-      <div id="res-pay" class="res-sub" style="display:none"><div id="paylist"></div></div>
       <div id="res-ko" class="res-sub" style="display:none">
         <div class="ko-entry">
           <div class="hint" id="kohint"></div>
@@ -747,7 +750,7 @@ function buildTicker(){
   });
   const trend=autoStorylines().concat([
     "Live scores flash here as games finish &mdash; the board scores on final group standings.",
-    P.length+" brackets in &middot; "+paidCount+" paid &middot; "+owe+" owe the pot"
+    "&#128176; Pot payout &mdash; 1st <b>$150</b> &middot; 2nd <b>$70</b> &middot; 3rd <b>$20</b>"
   ]);
   const items=liveItems.concat(trend);
   const html=items.map(x=>'<span>&#9679; '+x+'</span>').join('');
@@ -837,7 +840,7 @@ function renderLB(){
     return '<div class="row '+(rk<=3?'r'+rk:'')+'">'
       +'<div class="rk">'+rk+'</div>'
       +'<div class="who">'
-        +'<div class="nm">'+p.n+'<span class="paid '+(isPaid(p)?'y':'n')+'">'+(isPaid(p)?'PAID':'OWES')+'</span></div>'
+        +'<div class="nm">'+p.n+'</div>'
         +'<div class="pick">'+flag(champ)+' '+NAME(champ)+' '+potbadge(champ)+' <span style="color:var(--mut2)">to win</span></div>'
         +'<div class="barcell"><div class="bar"><div class="e" style="width:'+ePct+'%"></div><div class="p" style="width:'+pPct+'%"></div><div class="l" style="width:'+lPct+'%"></div></div></div>'
       +'</div>'
@@ -938,10 +941,8 @@ function showSub(m){
   subMode=m;
   document.querySelectorAll('.stab').forEach(s=>s.classList.toggle('on',s.dataset.sub===m));
   document.getElementById('res-gs').style.display = m==='gs'?'block':'none';
-  document.getElementById('res-pay').style.display = m==='pay'?'block':'none';
-  document.getElementById('res-ko').style.display = (m!=='gs'&&m!=='pay')?'block':'none';
-  if(m==='pay') renderPayments();
-  else if(m!=='gs') renderResKO();
+  document.getElementById('res-ko').style.display = (m!=='gs')?'block':'none';
+  if(m!=='gs') renderResKO();
 }
 function renderPayments(){
   const wrap=document.getElementById('paylist'); if(!wrap) return;
