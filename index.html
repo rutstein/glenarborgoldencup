@@ -768,6 +768,16 @@ function renderStorylines(){
   let lead='&#129351; <b>'+L.p.n+'</b> leads with <b>'+L.s.earned+'</b> pts';
   if(second){ const m=L.s.earned-second.s.earned; lead += m>0 ? ' &mdash; '+m+' clear of '+second.p.n : ' &mdash; dead even with '+second.p.n; }
   lines.push(lead);
+  // boldest underdog group call currently cashing (lowest-pot team sitting in a top-2 slot it was picked for)
+  const cg=curGroups(); const hits={};
+  P.forEach(p=>{ GORDER.forEach(G=>{ const cur=cg[G]; if(!cur) return;
+    p.gp[G].forEach((pick,i)=>{ if(POT(pick.t)>=3 && i<=1 && cur[i]===pick.t){
+      const k=pick.t+'|'+G+'|'+i; if(!hits[k]) hits[k]={pot:POT(pick.t),team:NAME(pick.t),G,finish:i+1,names:[]};
+      if(hits[k].names.indexOf(p.n)<0) hits[k].names.push(p.n); } });
+  }); });
+  const bold=Object.values(hits).sort((a,b)=> b.pot-a.pot || a.finish-b.finish || b.names.length-a.names.length)[0];
+  if(bold){ const who=bold.names.map(n=>n.split(' ')[0]).slice(0,3).join(', ')+(bold.names.length>3?' +'+(bold.names.length-3):'');
+    lines.push('&#128009; Boldest call cashing &mdash; <b>'+bold.team+'</b> (Pot '+bold.pot+') sitting '+(bold.finish===1?'1st':'2nd')+' in Group '+bold.G+', called by '+who); }
   const pg=[...arr].sort((a,b)=>b.s.perfectGroups-a.s.perfectGroups);
   if(pg[0].s.perfectGroups>0){
     const top=pg.filter(x=>x.s.perfectGroups===pg[0].s.perfectGroups).map(x=>x.p.n);
@@ -794,7 +804,7 @@ function renderStorylines(){
   const byPoss=[...arr].sort((a,b)=>b.s.poss-a.s.poss);
   if(byPoss[0].p.n!==L.p.n) lines.push('&#128640; <b>'+byPoss[0].p.n+'</b> still has the highest ceiling left (<b>'+byPoss[0].s.poss+'</b> possible)');
   box.style.display='block';
-  box.innerHTML='<div class="sl-h">&#128240; Storylines &mdash; the story so far</div>'+lines.slice(0,5).map(l=>'<div class="sl-row">'+l+'</div>').join('');
+  box.innerHTML='<div class="sl-h">&#128240; Storylines &mdash; the story so far</div>'+lines.slice(0,6).map(l=>'<div class="sl-row">'+l+'</div>').join('');
 }
 function renderLB(){
   const live=anyResults(); renderStorylines();
