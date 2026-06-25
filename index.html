@@ -704,11 +704,11 @@ function autoStorylines(){
 /* ===== Live group standings + projected leaderboard ===== */
 const TEAM2GROUP={}; GORDER.forEach(G=>{ (P[0].gp[G]||[]).forEach(x=>{TEAM2GROUP[x.t]=G;}); });
 let standingsData=null, projGroups=null, projKo=null;
-function groupsProjected(){ return !!(projGroups && Object.keys(projGroups).length) && Object.keys(results.groups).length===0; }
+function groupsProjected(){ return !!(projGroups && Object.keys(projGroups).length) && Object.keys(projGroups).some(G=>!(G in results.groups)); }
 function officialKo(){ return Object.keys(KOBASE).some(r=>(results.ko[r]||[]).length); }
 function koProjected(){ return !!(projKo && Object.keys(KOBASE).some(r=>(projKo[r]||[]).length)) && !officialKo(); }
 function isProjected(){ return groupsProjected() || koProjected(); }
-function curGroups(){ return groupsProjected() ? projGroups : results.groups; }
+function curGroups(){ return projGroups ? Object.assign({}, projGroups, results.groups) : results.groups; }
 function curKo(){ return koProjected() ? projKo : results.ko; }
 function buildProjKo(raw){
   if(!raw){ projKo=null; return; }
