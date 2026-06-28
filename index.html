@@ -241,6 +241,9 @@
   .paytog.on{background:rgba(40,199,111,.16);color:var(--green);border-color:rgba(40,199,111,.35)}
   .potdot{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
   .pb{font-size:9px;font-weight:900;padding:1px 5px;border-radius:5px;color:#0a0d15}
+  .chmp{font-size:9.5px;font-weight:900;letter-spacing:.3px;padding:1px 6px;border-radius:5px;margin-left:5px;text-transform:uppercase}
+  .chmp.alive{background:rgba(40,199,111,.16);color:var(--green);border:1px solid rgba(40,199,111,.35)}
+  .chmp.out{background:rgba(224,26,60,.13);color:#ff8095;border:1px solid rgba(224,26,60,.3)}
   .pb1{background:var(--p1)} .pb2{background:var(--p2)} .pb3{background:var(--p3)} .pb4{background:var(--p4)}
 
   .psel{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
@@ -710,6 +713,7 @@ function koProjected(){ return !!(projKo && Object.keys(KOBASE).some(r=>(projKo[
 function isProjected(){ return groupsProjected() || koProjected(); }
 function curGroups(){ return projGroups ? Object.assign({}, projGroups, results.groups) : results.groups; }
 function curKo(){ return koProjected() ? projKo : results.ko; }
+function koAlive(champ){ const ko=curKo(); const order=['f','sf','qf','r16','r32']; for(const r of order){ if((ko[r]||[]).length>=KOREQ[r]) return ko[r].includes(champ); } return null; }
 function buildProjKo(raw){
   if(!raw){ projKo=null; return; }
   const k={r32:[],r16:[],qf:[],sf:[],f:[]};
@@ -794,7 +798,13 @@ function renderStorylines(){
   if(koAny){
     const order=['r32','r16','qf','sf','f']; let deepest=null; order.forEach(r=>{ if((curKo()[r]||[]).length) deepest=r; });
     if(deepest){ const alive=P.filter(p=>(curKo()[deepest]||[]).includes(p.kop.f[0])).length;
-      lines.push('&#128081; <b>'+alive+' of '+P.length+'</b> still have their champion alive ('+deepest.toUpperCase()+')'); }
+      lines.push('&#128081; <b>'+alive+' of '+P.length+'</b> still have their champion alive ('+deepest.toUpperCase()+')');
+      // boldest knockout survivor (lowest-pot team advanced in the deepest round) + bracket impact
+      const surv=curKo()[deepest]||[]; let bestT=null; surv.forEach(t=>{ if(!bestT||POT(t)>POT(bestT)) bestT=t; });
+      if(bestT && POT(bestT)>=2){ const cnt=P.filter(p=>(p.kop[deepest]||[]).includes(bestT)).length;
+        const RL={r32:'the Round of 16',r16:'the Quarters',qf:'the Semis',sf:'the Final',f:'the title'}[deepest];
+        lines.push('&#128052; Boldest survivor &mdash; <b>'+NAME(bestT)+'</b> (Pot '+POT(bestT)+') into '+RL+(cnt? ', called by <b>'+cnt+'</b> bracket'+(cnt>1?'s':'') : ' &mdash; nobody had them')); }
+    }
   } else {
     {
       const sd=standingsData||[];
@@ -807,7 +817,7 @@ function renderStorylines(){
   const byPoss=[...arr].sort((a,b)=>b.s.poss-a.s.poss);
   if(byPoss[0].p.n!==L.p.n) lines.push('&#128640; <b>'+byPoss[0].p.n+'</b> still has the highest ceiling left (<b>'+byPoss[0].s.poss+'</b> possible)');
   box.style.display='block';
-  box.innerHTML='<div class="sl-h">&#128240; Storylines &mdash; the story so far</div>'+lines.slice(0,6).map(l=>'<div class="sl-row">'+l+'</div>').join('');
+  box.innerHTML='<div class="sl-h">&#128240; Storylines &mdash; the story so far</div>'+lines.slice(0,7).map(l=>'<div class="sl-row">'+l+'</div>').join('');
 }
 function renderLB(){
   const live=anyResults(); renderStorylines();
@@ -841,7 +851,7 @@ function renderLB(){
       +'<div class="rk">'+rk+'</div>'
       +'<div class="who">'
         +'<div class="nm">'+p.n+'</div>'
-        +'<div class="pick">'+flag(champ)+' '+NAME(champ)+' '+potbadge(champ)+' <span style="color:var(--mut2)">to win</span></div>'
+        +'<div class="pick">'+flag(champ)+' '+NAME(champ)+' '+potbadge(champ)+' <span style="color:var(--mut2)">to win</span>'+(function(){const a=koAlive(champ);return a===true?' <span class="chmp alive">&#10003; alive</span>':a===false?' <span class="chmp out">&#10005; out</span>':'';})()+'</div>'
         +'<div class="barcell"><div class="bar"><div class="e" style="width:'+ePct+'%"></div><div class="p" style="width:'+pPct+'%"></div><div class="l" style="width:'+lPct+'%"></div></div></div>'
       +'</div>'
       +'<div class="scol earn"><div class="big">'+s.earned+'</div><div class="lbl">Earned</div></div>'
