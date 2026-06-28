@@ -488,7 +488,7 @@
     <div class="bo-panel" id="bo-events"><div class="bo-h">Order of Events</div>
       <div class="bo-legend"><span><b class="bo-vs">v</b> = teams face off</span><span><b class="bo-plus">+</b> = teams combine</span></div>
       <div id="boEventlist"></div></div>
-    <div class="bo-panel" id="bo-scoring"><div class="bo-h">How Scoring Works</div><div class="bo-explain"><b>"CWS"</b> is a College World Series&ndash;style double-elim &mdash; win three (your semi, the winners' game, then the championship) to be crowned. Most events pay out <b>3 &middot; 2 &middot; 1 &middot; 0</b> across the placings.<div class="bo-twist"><b>Our twist:</b> reach the championship (two wins) and you're <b>guaranteed 2nd</b> &mdash; lose the final and you still take 2nd. No second chances in the championship.</div><div class="bo-paykey"><span>1st = 3</span><span>2nd = 2</span><span>3rd = 1</span><span>4th = 0</span></div></div><div id="boScoreRules"></div></div>
+    <div class="bo-panel" id="bo-scoring"><div class="bo-h">How Scoring Works</div><div class="bo-explain">Most events are <b>semi-style</b> &mdash; two semifinals, then a <b>final</b> (1st &amp; 2nd) and a <b>3rd-place game</b> (3rd &amp; 4th). Most pay out <b>3 &middot; 2 &middot; 1 &middot; 0</b> across the placings.<div class="bo-paykey"><span>1st = 3</span><span>2nd = 2</span><span>3rd = 1</span><span>4th = 0</span></div></div><div id="boScoreRules"></div></div>
     <div class="bo-panel" id="bo-enter">
       <div class="bo-barrow"><div class="bo-h" style="margin:0">Enter Scores</div><span class="bo-saved" id="boSaved">&#10003; Saved</span></div>
       <div id="boLock" class="bo-lock"><h3>&#128274; Scorekeeper only</h3><p>Enter the passcode to key in results. Standings update live for everyone.</p><div><input id="boPass" type="password" placeholder="Passcode" autocomplete="off"> <button class="bo-btn" id="boUnlock">Unlock</button></div><div class="bo-lockerr" id="boLockErr">Wrong passcode.</div></div>
@@ -1125,9 +1125,9 @@ boot();
       {no:"05",name:"Beer Dye",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Pick 2 of 3 electives, play to 11. Semis, then a final and a 3rd-place game.",bracket:[[1,2],[3,4]],places:true},
       {no:"06",name:"Water-Bunny",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 — first team out scores 0, the lone survivor takes 3. Team Mossad starts with +1.",format:"One game, last man standing. First team out 0, then 1 and 2 — the lone survivor takes 3. Team Mossad automatically starts with +1 point."},
       {no:"07",name:"Baseball",pill:"2 / 3 / 4",score:"Winning side scores by run differential — 1–3 runs: 2 · 4–7: 3 · 8+: 4.",format:"Team Mossad + Team 4 vs Team 2 + Team 3. 9 innings. Each winning side scores by run differential — 1–3: 2 pts · 4–7: 3 pts · 8+: 4 pts.",bracket:[[1,4],[3,2]],combined:true,single:true,rightTop:"9 Innings",rightBot:"Run Diff"},
-      {no:"08",name:"Cup Pong",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by final placing (CWS double-elim).",format:"Pick 2 of your 3 players (Part 2, no repeats) — Team Mossad plays their pair throughout. T1 v T3 · T4 v T2. CWS double-elim.",bracket:[[1,3],[4,2]]},
-      {no:"09",name:"Caps",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Pick 2 of your 3 players (Part 3, no repeats) — Team Mossad plays their pair throughout. Semis into finals, scored by place.",bracket:[[2,3],[4,1]],places:true},
-      {no:"10",name:"Flip Cup Down & Back",pill:"3 · 2 · 1",score:"3 · 2 · 1 by final placing (CWS double-elim).",format:"Fill to the line, cheers, drink, flip — go down & back. CWS double-elim."},
+      {no:"08",name:"Cup Pong",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Pick 2 of your 3 players (Part 2, no repeats) — Team Mossad plays their pair throughout. Semis (TM v T3 · T2 v T4), then a final & 3rd-place game.",bracket:[[1,3],[2,4]],places:true},
+      {no:"09",name:"Caps",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Pick 2 of your 3 players (Part 3, no repeats) — Team Mossad plays their pair throughout. Semis (TM v T4 · T2 v T3), then a final & 3rd-place game.",bracket:[[1,4],[2,3]],places:true},
+      {no:"10",name:"Flip Cup Down & Back",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Fill to the line, cheers, drink, flip — go down & back. Team Mossad plays Team 3 in round one. Mossad flip 3 times each; each of T2–T4's three members flip twice. Semis, then a final & 3rd-place game.",bracket:[[1,3],[2,4]],places:true},
     ]},
   ];
   const bEvents=days.flatMap(d=>d.events);
@@ -1151,7 +1151,7 @@ boot();
     let out;
     if(ev.places) out='<div class="bo-outbox"><div class="bo-outt">Final</div><div class="bo-outb">1st · 2nd</div></div><div class="bo-outbox dot"><div class="bo-outt">3rd Game</div><div class="bo-outb">3rd · 4th</div></div>';
     else if(ev.single) out='<div class="bo-outbox"><div class="bo-outt">'+bEsc(ev.rightTop||'')+'</div><div class="bo-outb">'+bEsc(ev.rightBot||'')+'</div></div>';
-    else out='<div class="bo-outbox"><div class="bo-outt">CWS</div><div class="bo-outb">Champion</div></div>';
+    else out='<div class="bo-outbox"><div class="bo-outt">Final</div><div class="bo-outb">1st · 2nd</div></div>';
     return '<div class="bo-bracket"><div class="bo-semis">'+semis+'</div><div class="bo-arrow">&#8594;</div><div class="bo-out">'+out+'</div></div>';
   }
   function bRenderEvents(){$('boEventlist').innerHTML=days.map(d=>'<div class="bo-dayhdr"><span class="bo-daydot" style="background:'+d.color+'"></span>'+bEsc(d.label)+'</div>'+d.events.map(ev=>'<div class="bo-ev"><div class="bo-evtop"><span class="bo-evno">'+ev.no+'</span><span class="bo-evn">'+bEsc(ev.name)+'</span><span class="bo-pill">'+bEsc(ev.pill)+'</span></div><div class="bo-fmt">'+bEsc(ev.format)+'</div>'+bBracket(ev)+'</div>').join('')).join('');}
