@@ -1116,17 +1116,17 @@ boot();
   ];
   const days=[
     {label:"Night 1",color:"#2A6F9E",events:[
-      {no:"01",name:"Trivia",pill:"Warm-Up",score:"Warm-up — no points on the board.",format:"Two teams combine — Nick & Aidan host, so their teams split. Pairs can decide or pick.",bracket:[[1,3],[2,4]],combined:true,single:true,rightTop:"Trivia",rightBot:"Night 1"},
+      {no:"01",name:"Trivia",pill:"Warm-Up",score:"Warm-up — no points on the board.",format:"Nick & Aidan break off to host. Everyone else plays in pairs of two — Hank's pair and Team Mossad (Noah & Chehab) as the fourth pair."},
     ]},
     {label:"Day 2",color:"#B82A2A",events:[
-      {no:"02",name:"Basketball",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by final placing (CWS double-elim).",format:"To 11, by 1s & 2s. Bracket: T4 v T2 · T1 v T3, then CWS double-elim to the title.",bracket:[[4,2],[1,3]]},
-      {no:"03",name:"Stack Cup Elimination",pill:"1 / game",score:"1 point each game your teammate is the last man standing.",format:"5 games · 12 cups · elimination. A point for every game your teammate is last man standing. Get stacked in every game and you're out."},
+      {no:"02",name:"Basketball",pill:"Combined",score:"Combined sides — points by where each side places.",format:"Team Mossad + Team 2 vs Team 3 + Team 4. To 11, by 1s & 2s. 1 sub. Best 2 of 3 games.",bracket:[[1,2],[3,4]],combined:true,single:true,rightTop:"Best 2 of 3",rightBot:"1 sub"},
+      {no:"03",name:"Stack Cup Elimination",pill:"1 / game",score:"1 point each game your teammate is the last man standing.",format:"5 games · 12 cups · elimination. A point for every game your teammate is last man standing. Get stacked in every game and you're out. Team Mossad's first elimination doesn't count."},
       {no:"04",name:"Chug Race",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Winners jockey for 1st (3, loser 2); losers jockey for 3rd (1, loser 0).",bracket:[[1,3],[2,4]],places:true},
       {no:"05",name:"Beer Dye",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Pick 2 of 3 electives, play to 11. Semis, then a final and a 3rd-place game.",bracket:[[1,2],[3,4]],places:true},
-      {no:"06",name:"Water-Bunny",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 — first team out scores 0, the lone survivor takes 3.",format:"One game, last man standing. First team out 0, then 1 and 2 — the lone survivor takes 3."},
-      {no:"07",name:"Baseball",pill:"2 / 3 / 4",score:"Winning side scores by run differential — 1–3 runs: 2 · 4–7: 3 · 8+: 4.",format:"9 innings, two combined sides. Each winning side scores by run differential — 1–3: 2 pts · 4–7: 3 pts · 8+: 4 pts.",bracket:[[1,4],[3,2]],combined:true,single:true,rightTop:"9 Innings",rightBot:"Run Diff"},
-      {no:"08",name:"Cup Pong",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by final placing (CWS double-elim).",format:"Pick 2 of your 3 players (Part 2, no repeats). T1 v T3 · T4 v T2. CWS double-elim.",bracket:[[1,3],[4,2]]},
-      {no:"09",name:"Caps",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Pick 2 of your 3 players (Part 3, no repeats). Semis into finals, scored by place.",bracket:[[2,3],[4,1]],places:true},
+      {no:"06",name:"Water-Bunny",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 — first team out scores 0, the lone survivor takes 3. Team Mossad starts with +1.",format:"One game, last man standing. First team out 0, then 1 and 2 — the lone survivor takes 3. Team Mossad automatically starts with +1 point."},
+      {no:"07",name:"Baseball",pill:"2 / 3 / 4",score:"Winning side scores by run differential — 1–3 runs: 2 · 4–7: 3 · 8+: 4.",format:"Team Mossad + Team 4 vs Team 2 + Team 3. 9 innings. Each winning side scores by run differential — 1–3: 2 pts · 4–7: 3 pts · 8+: 4 pts.",bracket:[[1,4],[3,2]],combined:true,single:true,rightTop:"9 Innings",rightBot:"Run Diff"},
+      {no:"08",name:"Cup Pong",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by final placing (CWS double-elim).",format:"Pick 2 of your 3 players (Part 2, no repeats) — Team Mossad plays their pair throughout. T1 v T3 · T4 v T2. CWS double-elim.",bracket:[[1,3],[4,2]]},
+      {no:"09",name:"Caps",pill:"3 · 2 · 1 · 0",score:"3 · 2 · 1 · 0 by placing.",format:"Pick 2 of your 3 players (Part 3, no repeats) — Team Mossad plays their pair throughout. Semis into finals, scored by place.",bracket:[[2,3],[4,1]],places:true},
       {no:"10",name:"Flip Cup Down & Back",pill:"3 · 2 · 1",score:"3 · 2 · 1 by final placing (CWS double-elim).",format:"Fill to the line, cheers, drink, flip — go down & back. CWS double-elim."},
     ]},
   ];
