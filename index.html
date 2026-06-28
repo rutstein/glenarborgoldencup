@@ -1109,10 +1109,10 @@ boot();
 /* ===== Beer Olympics (namespaced, isolated scope) ===== */
 (function(){
   const teams=[
-    {num:1,color:"#B82A2A",members:["Rohit","Cots","Michael"]},
-    {num:2,color:"#2A6F9E",members:["Aidan","Hank"]},
-    {num:3,color:"#B0801C",members:["Noah","Nick","Chehab"]},
-    {num:4,color:"#2A8C6A",members:["Jack","Darius","Gordon"]},
+    {num:1,color:"#B82A2A",name:"Team Mossad",members:["Noah","Chehab"]},
+    {num:2,color:"#2A6F9E",members:["Hank","Michael","Jack"]},
+    {num:3,color:"#B0801C",members:["Nick","Gordon","Rohit"]},
+    {num:4,color:"#2A8C6A",members:["Aidan","Cots","Darius"]},
   ];
   const days=[
     {label:"Night 1",color:"#2A6F9E",events:[
@@ -1138,9 +1138,9 @@ boot();
   function bTotals(){const t={};teams.forEach(x=>t[x.num]=0);bEvents.forEach((ev,ei)=>{const r=bScores[ei]||{};teams.forEach(x=>{const v=parseInt(r[x.num],10);if(!isNaN(v))t[x.num]+=v;});});return t;}
   function bRenderStandings(){
     const t=bTotals();
-    const arr=teams.map(x=>({num:x.num,color:x.color,members:x.members,total:t[x.num]})).sort((a,b)=>b.total-a.total||a.num-b.num);
+    const arr=teams.map(x=>({num:x.num,color:x.color,name:x.name,members:x.members,total:t[x.num]})).sort((a,b)=>b.total-a.total||a.num-b.num);
     const max=Math.max(1,...arr.map(s=>s.total));
-    $('boStandings').innerHTML=arr.map((s,i)=>'<div class="bo-strow" style="border-left:4px solid '+s.color+'"><div class="bo-rk" style="color:'+bMedals[i]+'">'+(i+1)+'</div><div><div class="bo-nm">Team '+s.num+'</div><div class="bo-mem">'+bEsc(s.members.join(' · '))+'</div></div><div class="bo-tot">'+s.total+'<small>pts</small></div><div class="bo-bar" style="width:'+Math.round(s.total/max*100)+'%;background:'+s.color+'"></div></div>').join('');
+    $('boStandings').innerHTML=arr.map((s,i)=>'<div class="bo-strow" style="border-left:4px solid '+s.color+'"><div class="bo-rk" style="color:'+bMedals[i]+'">'+(i+1)+'</div><div><div class="bo-nm">'+bEsc(s.name||('Team '+s.num))+'</div><div class="bo-mem">'+bEsc(s.members.join(' · '))+'</div></div><div class="bo-tot">'+s.total+'<small>pts</small></div><div class="bo-bar" style="width:'+Math.round(s.total/max*100)+'%;background:'+s.color+'"></div></div>').join('');
   }
   function bRenderTeams(){$('boTeamgrid').innerHTML=teams.map(t=>'<div class="bo-tcard" style="border-top-color:'+t.color+'"><div class="bo-tn">Team '+t.num+'</div>'+t.members.map(m=>'<div class="bo-mm"><span class="bo-dot" style="background:'+t.color+'"></span>'+bEsc(m)+'</div>').join('')+'</div>').join('');}
   function bTC(n){return (teams.find(t=>t.num===n)||{}).color;}
