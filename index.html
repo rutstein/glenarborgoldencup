@@ -795,24 +795,22 @@ function renderStorylines(){
   const cold=[...arr].sort((a,b)=>b.s.lost-a.s.lost);
   if(cold[0]&&cold[0].s.lost>0) lines.push('&#129482; <b>'+cold[0].p.n+'</b> has the most points already busted (<b>'+cold[0].s.lost+'</b> lost)');
   const koAny=Object.keys(KOBASE).some(r=>(curKo()[r]||[]).length);
-  if(koAny){
-    const order=['r32','r16','qf','sf','f']; let deepest=null; order.forEach(r=>{ if((curKo()[r]||[]).length) deepest=r; });
-    if(deepest){ const alive=P.filter(p=>(curKo()[deepest]||[]).includes(p.kop.f[0])).length;
-      lines.push('&#128081; <b>'+alive+' of '+P.length+'</b> still have their champion alive ('+deepest.toUpperCase()+')');
-      // boldest knockout survivor (lowest-pot team advanced in the deepest round) + bracket impact
-      const surv=curKo()[deepest]||[]; let bestT=null; surv.forEach(t=>{ if(!bestT||POT(t)>POT(bestT)) bestT=t; });
-      if(bestT && POT(bestT)>=2){ const cnt=P.filter(p=>(p.kop[deepest]||[]).includes(bestT)).length;
-        const RL={r32:'the Round of 16',r16:'the Quarters',qf:'the Semis',sf:'the Final',f:'the title'}[deepest];
-        lines.push('&#128052; Boldest survivor &mdash; <b>'+NAME(bestT)+'</b> (Pot '+POT(bestT)+') into '+RL+(cnt? ', called by <b>'+cnt+'</b> bracket'+(cnt>1?'s':'') : ' &mdash; nobody had them')); }
-    }
+  let dc=null; ['r32','r16','qf','sf','f'].forEach(r=>{ if((curKo()[r]||[]).length>=KOREQ[r]) dc=r; });
+  if(dc){
+    const RL={r32:'into the Round of 16',r16:'into the Quarters',qf:'into the Semis',sf:'into the Final',f:'as champion'}[dc];
+    const alive=P.filter(p=>(curKo()[dc]||[]).includes(p.kop.f[0])).length;
+    lines.push('&#128081; <b>'+alive+' of '+P.length+'</b> still have their champion alive ('+dc.toUpperCase()+' complete)');
+    const surv=curKo()[dc]||[]; let bestT=null; surv.forEach(t=>{ if(!bestT||POT(t)>POT(bestT)) bestT=t; });
+    if(bestT && POT(bestT)>=2){ const cnt=P.filter(p=>(p.kop[dc]||[]).includes(bestT)).length;
+      lines.push('&#128052; Boldest survivor &mdash; <b>'+NAME(bestT)+'</b> (Pot '+POT(bestT)+') '+RL+(cnt? ', called by <b>'+cnt+'</b> bracket'+(cnt>1?'s':'') : ' &mdash; nobody had them')); }
+  } else if(koAny){
+    lines.push('&#9876;&#65039; Knockouts underway &mdash; Round of 32 in progress.');
   } else {
-    {
-      const sd=standingsData||[];
-      const allFinal = sd.length>0 && sd.every(g=>(g.teams||[]).every(t=>((t.w||0)+(t.d||0)+(t.l||0))>=3));
-      lines.push(allFinal
-        ? '&#128202; Group stage is final &mdash; knockout points still to come, so the board can still swing hard.'
-        : '&#128202; Group stage still in progress &mdash; these are live projections, nothing\'s locked, and the board will keep moving.');
-    }
+    const sd=standingsData||[];
+    const allFinal = sd.length>0 && sd.every(g=>(g.teams||[]).every(t=>((t.w||0)+(t.d||0)+(t.l||0))>=3));
+    lines.push(allFinal
+      ? '&#128202; Group stage is final &mdash; knockout points still to come, so the board can still swing hard.'
+      : '&#128202; Group stage still in progress &mdash; these are live projections, nothing\'s locked, and the board will keep moving.');
   }
   const byPoss=[...arr].sort((a,b)=>b.s.poss-a.s.poss);
   if(byPoss[0].p.n!==L.p.n) lines.push('&#128640; <b>'+byPoss[0].p.n+'</b> still has the highest ceiling left (<b>'+byPoss[0].s.poss+'</b> possible)');
@@ -889,10 +887,11 @@ function renderBracket(){
   }).join('');
   const s=score(p);
   document.getElementById('brbody').innerHTML=
-    '<div class="bgrid">'+gcards+'</div>'
-    +'<div class="kowrap"><div class="section-h"><h2 style="font-size:16px">Knockout path</h2>'
+    '<div class="kowrap"><div class="section-h"><h2 style="font-size:16px">Knockout path</h2>'
     +'<span class="note">GS '+p.gsCeil+' &middot; KO '+p.koCeil+' &middot; Ceiling '+s.ceil+(anyResults()?' &middot; Earned '+s.earned:'')+'</span></div>'
-    +'<div class="korounds">'+kocols+'</div></div>';
+    +'<div class="korounds">'+kocols+'</div></div>'
+    +'<div class="section-h" style="margin-top:10px"><h2 style="font-size:16px">Group stage</h2></div>'
+    +'<div class="bgrid">'+gcards+'</div>';
 }
 
 let subMode='gs';
