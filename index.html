@@ -68,6 +68,15 @@
     font-size:12px;font-weight:700;cursor:pointer}
   .pill.on{background:var(--wc-red);color:#fff;border-color:var(--wc-red)}
   .lb{display:flex;flex-direction:column;gap:8px}
+  .odboard{display:flex;flex-direction:column;gap:8px}
+  .odrow{display:grid;grid-template-columns:32px 1fr auto auto;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+  .odrow:first-child{border-color:var(--usa-red);box-shadow:0 0 0 1px rgba(229,35,27,.25)}
+  .odrk{font-weight:900;font-size:18px;color:var(--mut2);font-variant-numeric:tabular-nums;text-align:center}
+  .odrow:first-child .odrk{color:var(--usa-red)}
+  .odn{font-weight:800;font-size:15px;min-width:0}
+  .odsub{font-size:11px;color:var(--mut2);font-weight:600;margin-top:2px}
+  .odml{font-family:ui-monospace,monospace;font-weight:900;font-size:16px;color:#fff;background:var(--usa-blue);padding:5px 10px;border-radius:8px;min-width:64px;text-align:center}
+  .odpct{font-weight:900;font-size:15px;color:var(--usa-blue2);width:48px;text-align:right;font-variant-numeric:tabular-nums}
   .projbanner{display:flex;align-items:center;gap:11px;background:rgba(245,197,24,.10);border:1px solid rgba(245,197,24,.42);border-radius:12px;padding:11px 14px;margin-bottom:14px;font-size:13px;color:#f0d98a;line-height:1.45}
   .projbanner .pb-tag{background:var(--gold);color:#1a1205;font-weight:900;font-size:10px;letter-spacing:.5px;padding:4px 9px;border-radius:6px;flex:none;text-transform:uppercase}
   .projbanner b{color:#fff;font-weight:800}
@@ -384,6 +393,7 @@
 
 <nav class="tabs"><div class="tabs-inner">
   <div class="tab active" data-tab="lb">&#127942; Leaderboard</div>
+  <div class="tab" data-tab="odds">&#128200; Odds</div>
   <div class="tab" data-tab="sco">&#128250; Scores</div>
   <div class="tab" data-tab="br">&#128203; Brackets</div>
   <div class="tab" data-tab="rs">&#127937; Results</div>
@@ -463,6 +473,11 @@
       </div>
       <div class="saved-note" id="savedNote" style="display:none">&#10003; Saved</div>
     </div>
+  </section>
+
+  <section class="panel" id="odds">
+    <div class="section-h"><h2>Win Odds</h2><span class="note" id="oddsnote">Live odds to win the pool &middot; modeled from current points, projection &amp; ceiling</span></div>
+    <div id="oddsbody"><div class="rs-empty">Crunching the numbers&hellip;</div></div>
   </section>
 
   <section class="panel" id="sco">
@@ -764,6 +779,26 @@ function buildTicker(){
   document.getElementById('ticker').innerHTML=full;
 }
 
+/* ===== Live win-odds (Monte Carlo from current pts, projection & ceiling) ===== */
+function odRandn(){ let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+function odAmerican(p){ p=Math.max(0.004,Math.min(0.996,p)); return p>=0.5 ? '-'+Math.round(100*p/(1-p)) : '+'+Math.round(100*(1-p)/p); }
+function computeOdds(){
+  const dat=P.map(p=>{ const s=score(p); const floor=s.earned, top=s.poss; const exp=floor+0.45*(top-floor); const sig=Math.max(2,(top-floor)*0.4); return {p,floor,top,exp,sig}; });
+  const N=4000, wins=new Array(dat.length).fill(0);
+  for(let n=0;n<N;n++){ let bi=0,bv=-1e9;
+    for(let i=0;i<dat.length;i++){ let v=dat[i].exp+odRandn()*dat[i].sig; if(v<dat[i].floor)v=dat[i].floor; if(v>dat[i].top)v=dat[i].top; v+=Math.random()*0.01; if(v>bv){bv=v;bi=i;} }
+    wins[bi]++;
+  }
+  return dat.map((d,i)=>({name:d.p.n,prob:wins[i]/N,earned:d.floor,poss:d.top})).sort((a,b)=>b.prob-a.prob);
+}
+function renderOdds(){
+  const box=document.getElementById('oddsbody'); if(!box) return;
+  const od=computeOdds();
+  box.innerHTML='<div class="odboard">'+od.map((o,i)=>{
+    const pct=o.prob>=0.01?Math.round(o.prob*100)+'%':'&lt;1%';
+    return '<div class="odrow"><div class="odrk">'+(i+1)+'</div><div class="odn">'+o.name+'<div class="odsub">'+o.earned+' pts &middot; '+o.poss+' ceiling</div></div><div class="odml">'+odAmerican(o.prob)+'</div><div class="odpct">'+pct+'</div></div>';
+  }).join('')+'</div>';
+}
 let sortMode='auto';
 function renderStorylines(){
   const box=document.getElementById('storylines'); if(!box) return;
@@ -1004,6 +1039,7 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   if(t.dataset.tab==='res') renderResultsTab();
   if(t.dataset.tab==='rs') renderResults();
   if(t.dataset.tab==='sco'){ renderScoreboard(); refreshScores(); }
+  if(t.dataset.tab==='odds') renderOdds();
   if(t.dataset.tab==='beer' && window.__beerInit) window.__beerInit();
 }));
 document.querySelectorAll('.pill').forEach(p=>p.addEventListener('click',()=>{
@@ -1085,7 +1121,7 @@ function renderAll(){
 }
 function boot(){
   buildTicker();
-  function liveTick(){ refreshScores(); loadStandings(()=> loadKo(()=>{ renderGroupTables(); renderLB(); renderPsel(); renderBracket(); renderResults(); })); }
+  function liveTick(){ refreshScores(); loadStandings(()=> loadKo(()=>{ renderGroupTables(); renderLB(); renderPsel(); renderBracket(); renderResults(); renderOdds(); })); }
   liveTick(); setInterval(liveTick,30000);
   if(API){
     try{const sp=sessionStorage.getItem('gagc_pass'); if(sp){PASS=sp;EDITOR=true;}}catch(e){}
