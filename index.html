@@ -781,7 +781,13 @@ function buildTicker(){
 
 /* ===== Live win-odds (Monte Carlo from current pts, projection & ceiling) ===== */
 function odRandn(){ let u=0,v=0; while(u===0)u=Math.random(); while(v===0)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
-function odAmerican(p){ p=Math.max(0.004,Math.min(0.996,p)); return p>=0.5 ? '-'+Math.round(100*p/(1-p)) : '+'+Math.round(100*(1-p)/p); }
+function odAmerican(p){
+  p=Math.max(0.004,Math.min(0.985,p*1.20)); // ~20% vig — the book shades the payout a bit
+  const neg=p>=0.5; let n=neg?100*p/(1-p):100*(1-p)/p;
+  const step=n<150?5:n<300?10:n<600?25:n<1500?50:100; // round to clean book-style numbers
+  n=Math.round(n/step)*step; if(neg&&n<105)n=105;
+  return (neg?'-':'+')+n;
+}
 function computeOdds(){
   const dat=P.map(p=>{ const s=score(p); const floor=s.earned, top=s.poss; const exp=floor+0.45*(top-floor); const sig=Math.max(2,(top-floor)*0.4); return {p,floor,top,exp,sig}; });
   const N=4000, wins=new Array(dat.length).fill(0);
