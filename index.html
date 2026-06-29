@@ -730,10 +730,10 @@ const TEAM2GROUP={}; GORDER.forEach(G=>{ (P[0].gp[G]||[]).forEach(x=>{TEAM2GROUP
 let standingsData=null, projGroups=null, projKo=null;
 function groupsProjected(){ return !!(projGroups && Object.keys(projGroups).length) && Object.keys(projGroups).some(G=>!(G in results.groups)); }
 function officialKo(){ return Object.keys(KOBASE).some(r=>(results.ko[r]||[]).length); }
-function koProjected(){ return !!(projKo && Object.keys(KOBASE).some(r=>(projKo[r]||[]).length)) && !officialKo(); }
+function koProjected(){ return Object.keys(KOBASE).some(r=>(curKo()[r]||[]).length) && !Object.keys(KOBASE).every(r=>(results.ko[r]||[]).length>=KOREQ[r]); }
 function isProjected(){ return groupsProjected() || koProjected(); }
 function curGroups(){ return projGroups ? Object.assign({}, projGroups, results.groups) : results.groups; }
-function curKo(){ return koProjected() ? projKo : results.ko; }
+function curKo(){ if(!projKo) return results.ko; const out={}; ['r32','r16','qf','sf','f'].forEach(r=>{ out[r]=Array.from(new Set([...(projKo[r]||[]), ...((results.ko&&results.ko[r])||[])])); }); return out; }
 function koAlive(champ){ const ko=curKo(); const order=['f','sf','qf','r16','r32']; for(const r of order){ if((ko[r]||[]).length>=KOREQ[r]) return ko[r].includes(champ); } return null; }
 function buildProjKo(raw){
   if(!raw){ projKo=null; return; }
