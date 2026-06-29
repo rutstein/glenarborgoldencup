@@ -69,7 +69,9 @@
   .pill.on{background:var(--wc-red);color:#fff;border-color:var(--wc-red)}
   .lb{display:flex;flex-direction:column;gap:8px}
   .odboard{display:flex;flex-direction:column;gap:8px}
-  .odrow{display:grid;grid-template-columns:32px 1fr auto auto;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+  .odrow{display:grid;grid-template-columns:30px 1fr auto auto 46px;gap:13px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+  .odmv{font-weight:800;font-size:12px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .odmv.up{color:var(--green)} .odmv.down{color:#ff8095} .odmv.flat{color:var(--mut2)}
   .odrow:first-child{border-color:var(--usa-red);box-shadow:0 0 0 1px rgba(229,35,27,.25)}
   .odrk{font-weight:900;font-size:18px;color:var(--mut2);font-variant-numeric:tabular-nums;text-align:center}
   .odrow:first-child .odrk{color:var(--usa-red)}
@@ -800,9 +802,22 @@ function computeOdds(){
 function renderOdds(){
   const box=document.getElementById('oddsbody'); if(!box) return;
   const od=computeOdds();
+  const cur={}; od.forEach(o=>cur[o.name]=o.prob);
+  // line movement vs the prior result-state (signature changes only when results/projection change)
+  const sig=JSON.stringify(curGroups())+'|'+JSON.stringify(curKo());
+  let st=null; try{st=JSON.parse(localStorage.getItem('gagc_odds_mv')||'null');}catch(e){}
+  let base;
+  if(!st){ base=cur; st={sig,base:cur,last:cur}; }
+  else if(st.sig===sig){ base=st.base||cur; st.last=cur; }
+  else { base=st.last||cur; st={sig,base:base,last:cur}; }
+  try{localStorage.setItem('gagc_odds_mv',JSON.stringify(st));}catch(e){}
   box.innerHTML='<div class="odboard">'+od.map((o,i)=>{
+    const d=(cur[o.name]||0)-(base[o.name]!=null?base[o.name]:(cur[o.name]||0));
+    let mv='<span class="odmv flat">&mdash;</span>';
+    if(d>=0.015) mv='<span class="odmv up">&#9650; '+Math.round(d*100)+'</span>';
+    else if(d<=-0.015) mv='<span class="odmv down">&#9660; '+Math.round(-d*100)+'</span>';
     const pct=o.prob>=0.01?Math.round(o.prob*100)+'%':'&lt;1%';
-    return '<div class="odrow"><div class="odrk">'+(i+1)+'</div><div class="odn">'+o.name+'<div class="odsub">'+o.earned+' pts &middot; '+o.poss+' ceiling</div></div><div class="odml">'+odAmerican(o.prob)+'</div><div class="odpct">'+pct+'</div></div>';
+    return '<div class="odrow"><div class="odrk">'+(i+1)+'</div><div class="odn">'+o.name+'<div class="odsub">'+o.earned+' pts &middot; '+o.poss+' ceiling</div></div><div class="odml">'+odAmerican(o.prob)+'</div><div class="odpct">'+pct+'</div>'+mv+'</div>';
   }).join('')+'</div>';
 }
 let sortMode='auto';
