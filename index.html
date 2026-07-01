@@ -282,6 +282,8 @@
   .grow .pts{font-weight:900;font-size:12px;color:var(--mut);flex:none}
   .grow.hit{background:rgba(40,199,111,.12)} .grow.hit .pts{color:var(--green)}
   .grow.miss{opacity:.6;background:rgba(224,26,60,.07)} .grow.miss .tn{text-decoration:line-through;color:#ff8095}
+  .grow.elim .tn{text-decoration:line-through;color:#ff8095}
+  .outtag{font-size:8px;font-weight:900;letter-spacing:.5px;background:rgba(224,26,60,.15);color:#ff8095;border:1px solid rgba(224,26,60,.35);border-radius:4px;padding:1px 4px;margin-left:5px}
   .grow.miss .pts{color:#ff8095}
   .grow.hit .chk{color:var(--green)} .grow.miss .chk{color:#ff8095}
   .chk{width:13px;flex:none;font-weight:900;font-size:12px;color:transparent}
@@ -941,7 +943,9 @@ function renderBracket(){
     const rows=p.gp[G].map((pick,i)=>{
       let cls='',chk='';
       if(actual && actual[i]){ if(actual[i]===pick.t){cls='hit';chk='\u2713';} else {cls='miss';chk='\u2715';} }
-      return '<div class="grow '+cls+'"><span class="chk">'+chk+'</span><span class="pos">'+(i+1)+'</span>'+flag(pick.t)+'<span class="tn">'+NAME(pick.t)+'</span>'+potbadge(pick.t)+'<span class="pts">+'+pick.pts+'</span></div>';
+      if(isEliminated(pick.t)) cls+=' elim';
+      const out=isEliminated(pick.t)?'<span class="outtag">OUT</span>':'';
+      return '<div class="grow '+cls+'"><span class="chk">'+chk+'</span><span class="pos">'+(i+1)+'</span>'+flag(pick.t)+'<span class="tn">'+NAME(pick.t)+'</span>'+potbadge(pick.t)+out+'<span class="pts">+'+pick.pts+'</span></div>';
     }).join('');
     return '<div class="gcard"><h4>Group '+G+' <span class="gt">'+p.gp[G].reduce((a,b)=>a+b.pts,0)+' pts</span></h4>'+rows+'</div>';
   }).join('');
