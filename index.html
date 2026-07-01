@@ -281,7 +281,7 @@
   .grow .tn{font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .grow .pts{font-weight:900;font-size:12px;color:var(--mut);flex:none}
   .grow.hit{background:rgba(40,199,111,.12)} .grow.hit .pts{color:var(--green)}
-  .grow.miss{opacity:.5} .grow.miss .tn{text-decoration:line-through}
+  .grow.miss{opacity:.6;background:rgba(224,26,60,.07)} .grow.miss .tn{text-decoration:line-through;color:#ff8095}
   .grow.miss .pts{color:#ff8095}
   .grow.hit .chk{color:var(--green)} .grow.miss .chk{color:#ff8095}
   .chk{width:13px;flex:none;font-weight:900;font-size:12px;color:transparent}
@@ -297,7 +297,7 @@
   .koteam .tn{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .koteam .pts{font-weight:900;color:var(--mut);font-size:11px}
   .koteam.hit{background:rgba(40,199,111,.12)} .koteam.hit .pts{color:var(--green)}
-  .koteam.miss{opacity:.45} .koteam.miss .tn{text-decoration:line-through}
+  .koteam.miss{opacity:.6;background:rgba(224,26,60,.08)} .koteam.miss .tn{text-decoration:line-through;color:#ff8095}
 
   .subtabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
   .stab{background:var(--card);border:1px solid var(--line);padding:8px 14px;border-radius:9px;
@@ -673,7 +673,7 @@ function score(p){
     const adv=curKo()[r]||[]; const locked=koFinal(r);
     p.kop[r].forEach(t=>{
       const v=KOBASE[r]*POT(t); ceil+=v;
-      if(adv.includes(t)) earned+=v; else if(locked) lost+=v;
+      if(adv.includes(t)) earned+=v; else if(locked || isEliminated(t)) lost+=v;
     });
   });
   // Tiebreakers: (1) picked the actual champion, (2) number of perfectly-called groups (all 4 spots correct)
@@ -734,14 +734,17 @@ function koProjected(){ return Object.keys(KOBASE).some(r=>(curKo()[r]||[]).leng
 function isProjected(){ return groupsProjected() || koProjected(); }
 function curGroups(){ return projGroups ? Object.assign({}, projGroups, results.groups) : results.groups; }
 function curKo(){ if(!projKo) return results.ko; const out={}; ['r32','r16','qf','sf','f'].forEach(r=>{ out[r]=Array.from(new Set([...(projKo[r]||[]), ...((results.ko&&results.ko[r])||[])])); }); return out; }
-function koAlive(champ){ const ko=curKo(); const order=['f','sf','qf','r16','r32']; for(const r of order){ if((ko[r]||[]).length>=KOREQ[r]) return ko[r].includes(champ); } return null; }
+let projOut=null;
+function isEliminated(t){ return !!(projOut && projOut.has(t)); }
+function koAlive(champ){ if(isEliminated(champ)) return false; const ko=curKo(); const order=['f','sf','qf','r16','r32']; for(const r of order){ if((ko[r]||[]).length>=KOREQ[r]) return ko[r].includes(champ); } return null; }
 function buildProjKo(raw){
   if(!raw){ projKo=null; return; }
   const k={r32:[],r16:[],qf:[],sf:[],f:[]};
   Object.keys(k).forEach(r=>{ (raw[r]||[]).forEach(t=>{ const c=codeFor(t); if(c&&!k[r].includes(c)) k[r].push(c); }); });
   projKo=k;
 }
-function loadKo(cb){ fetch('/api/ko',{cache:'no-store'}).then(r=>r.json()).then(o=>{ buildProjKo(o&&o.ko); if(cb)cb(); }).catch(()=>{ if(cb)cb(); }); }
+function buildProjOut(raw){ projOut=new Set(); (raw||[]).forEach(t=>{ const c=codeFor(t); if(c) projOut.add(c); }); }
+function loadKo(cb){ fetch('/api/ko',{cache:'no-store'}).then(r=>r.json()).then(o=>{ buildProjKo(o&&o.ko); buildProjOut(o&&o.out); if(cb)cb(); }).catch(()=>{ if(cb)cb(); }); }
 function buildProjGroups(){
   projGroups=null; if(!standingsData) return;
   const pg={};
@@ -945,7 +948,7 @@ function renderBracket(){
   const kocols=Object.keys(KOBASE).map(r=>{
     const adv=curKo()[r]||[], locked=koFinal(r);
     const teams=p.kop[r].map(t=>{
-      let cls=''; if(adv.includes(t)) cls='hit'; else if(locked) cls='miss';
+      let cls=''; if(adv.includes(t)) cls='hit'; else if(locked || isEliminated(t)) cls='miss';
       return '<div class="koteam '+cls+'">'+flag(t)+'<span class="tn">'+NAME(t)+'</span><span class="pts">+'+(KOBASE[r]*POT(t))+'</span></div>';
     }).join('');
     return '<div class="kocol"><h4>'+r.toUpperCase()+'<small>'+KOLBL[r]+'</small></h4>'+teams+'</div>';
