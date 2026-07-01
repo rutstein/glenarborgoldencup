@@ -736,8 +736,12 @@ function koProjected(){ return Object.keys(KOBASE).some(r=>(curKo()[r]||[]).leng
 function isProjected(){ return groupsProjected() || koProjected(); }
 function curGroups(){ return projGroups ? Object.assign({}, projGroups, results.groups) : results.groups; }
 function curKo(){ if(!projKo) return results.ko; const out={}; ['r32','r16','qf','sf','f'].forEach(r=>{ out[r]=Array.from(new Set([...(projKo[r]||[]), ...((results.ko&&results.ko[r])||[])])); }); return out; }
-let projOut=null;
-function isEliminated(t){ return !!(projOut && projOut.has(t)); }
+let projOut=null, projField=null;
+function isEliminated(t){
+  if(projOut && projOut.has(t)) return true;                       // lost a knockout match
+  if(projField && projField.size>=24 && !projField.has(t)) return true; // didn't qualify out of the group
+  return false;
+}
 function koAlive(champ){ if(isEliminated(champ)) return false; const ko=curKo(); const order=['f','sf','qf','r16','r32']; for(const r of order){ if((ko[r]||[]).length>=KOREQ[r]) return ko[r].includes(champ); } return null; }
 function buildProjKo(raw){
   if(!raw){ projKo=null; return; }
@@ -746,7 +750,8 @@ function buildProjKo(raw){
   projKo=k;
 }
 function buildProjOut(raw){ projOut=new Set(); (raw||[]).forEach(t=>{ const c=codeFor(t); if(c) projOut.add(c); }); }
-function loadKo(cb){ fetch('/api/ko',{cache:'no-store'}).then(r=>r.json()).then(o=>{ buildProjKo(o&&o.ko); buildProjOut(o&&o.out); if(cb)cb(); }).catch(()=>{ if(cb)cb(); }); }
+function buildProjField(raw){ projField=new Set(); (raw||[]).forEach(t=>{ const c=codeFor(t); if(c) projField.add(c); }); }
+function loadKo(cb){ fetch('/api/ko',{cache:'no-store'}).then(r=>r.json()).then(o=>{ buildProjKo(o&&o.ko); buildProjOut(o&&o.out); buildProjField(o&&o.field); if(cb)cb(); }).catch(()=>{ if(cb)cb(); }); }
 function buildProjGroups(){
   projGroups=null; if(!standingsData) return;
   const pg={};
